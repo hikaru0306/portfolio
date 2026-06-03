@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hikaru Nakagawa | Portfolio</title>
+  <meta name="description" content="ゲームプランナー / ゲームデザイナー ポートフォリオ" />
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+  <!-- Splash intro -->
+  <div class="splash" id="splash">
+    <div class="splash__text" id="splashText"></div>
+    <div class="splash__sub" id="splashSub"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="header" id="top">
+    <div class="wrap header__inner">
+      <a class="logo" href="#top" id="logo"></a>
+      <nav class="nav" id="nav"></nav>
+      <button class="menu-btn" id="menuBtn" aria-label="メニュー">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap hero__grid">
+      <div class="hero__left" id="hero"></div>
+    </div>
+  </section>
+
+  <!-- Works -->
+  <section class="sect" id="works">
+    <div class="wrap" id="worksWrap"></div>
+  </section>
+
+  <!-- 自主制作 -->
+  <section class="sect sect--muted" id="personal">
+    <div class="wrap" id="personalWrap"></div>
+  </section>
+
+  <!-- 学生時代の作品 -->
+  <section class="sect" id="student">
+    <div class="wrap" id="studentWrap"></div>
+  </section>
+
+  <!-- Skills -->
+  <section class="sect sect--muted" id="skills">
+    <div class="wrap" id="skillsWrap"></div>
+  </section>
+
+  <!-- About -->
+  <section class="sect" id="about">
+    <div class="wrap" id="aboutWrap"></div>
+  </section>
+
+  <!-- Contact -->
+  <section class="sect sect--muted" id="contact">
+    <div class="wrap" id="contactWrap"></div>
+  </section>
+
+  <footer class="footer">
+    <div class="wrap footer__inner">
+      <span class="secondary">&copy; <span id="year"></span> <span id="footerName"></span></span>
+    </div>
+  </footer>
+
+  <!-- Modal -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal__bg" data-close></div>
+    <div class="modal__box">
+      <div class="modal__header">
+        <div>
+          <div class="tag" id="mTag"></div>
+          <h3 id="mTitle"></h3>
+        </div>
+        <button class="modal__close" data-close aria-label="閉じる">&times;</button>
+      </div>
+      <div class="modal__body" id="mBody"></div>
+      <div class="modal__footer">
+        <span class="secondary">Esc で閉じる</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

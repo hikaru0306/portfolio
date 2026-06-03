@@ -1,0 +1,1238 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>ドロップバトル</title>
+<meta name="description" content="6x6 ドロップ消しバトル。10階を制覇しよう！" />
+<meta property="og:title" content="ドロップバトル" />
+<meta property="og:description" content="6x6 ドロップ消しバトル。10階を制覇しよう！" />
+<meta property="og:type" content="website" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:#0a0710;overscroll-behavior:none}
+#root{min-height:100vh}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;padding:0;margin:0}
+.relative{position:relative}.absolute{position:absolute}.fixed{position:fixed}
+.inset-0{top:0;right:0;bottom:0;left:0}
+.flex{display:flex}.grid{display:grid}.inline-block{display:inline-block}.block{display:block}
+.flex-1{flex:1 1 0%}.flex-col{flex-direction:column}
+.items-center{align-items:center}.items-stretch{align-items:stretch}
+.justify-between{justify-content:space-between}.justify-center{justify-content:center}
+.flex-wrap{flex-wrap:wrap}
+.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}
+.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid-cols-6{grid-template-columns:repeat(6,minmax(0,1fr))}
+.gap-1{gap:.25rem}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}
+.w-full{width:100%}
+.p-2\.5{padding:.625rem}.p-4{padding:1rem}
+.px-3{padding-left:.75rem;padding-right:.75rem}.px-4{padding-left:1rem;padding-right:1rem}
+.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}
+.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}
+.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-2\.5{padding-top:.625rem;padding-bottom:.625rem}
+.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}
+.mb-1{margin-bottom:.25rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}
+.mt-1{margin-top:.25rem}.mt-3{margin-top:.75rem}.my-3{margin-top:.75rem;margin-bottom:.75rem}
+.rounded-lg{border-radius:.5rem}.rounded-xl{border-radius:.75rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}
+.text-center{text-align:center}.text-left{text-align:left}.text-right{text-align:right}
+.text-xs{font-size:.75rem;line-height:1rem}.text-sm{font-size:.875rem;line-height:1.25rem}
+.text-\[9px\]{font-size:9px}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}
+.font-bold{font-weight:700}
+.tracking-widest{letter-spacing:.1em}
+.leading-relaxed{line-height:1.625}
+.pointer-events-none{pointer-events:none}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+(function(){
+  var R = window.React, RD = window.ReactDOM;
+  if(!R || !RD){ document.getElementById('root').innerHTML = '<p style="color:#fff;padding:20px">読み込みに失敗しました。通信環境を確認して再読み込みしてください。</p>'; return; }
+  var useState=R.useState, useRef=R.useRef, useEffect=R.useEffect, useCallback=R.useCallback;
+  var React = R; // for compiled React.createElement / React.Fragment refs
+// ===== 基本設定 =====
+const SIZE = 6;
+const TOTAL = SIZE * SIZE;
+const P_MAX = 250;
+const NUM_SPECIAL = 5; // 盤面の特殊ドロップ数（常時）
+const STAR_THRESHOLD = 6; // ★：この個数以上同時消しで発動
+
+// 階層ごとの敵（全10階）。HP200/攻40から徐々に強化
+const FLOORS = Array.from({
+  length: 10
+}, (_, i) => ({
+  hp: 200 + i * 90,
+  atk: 40 + i * 8,
+  name: `${i + 1}階の敵`
+}));
+const ATK_PER = 10,
+  DEF_PER = 10,
+  HEAL_PER = 1;
+const DROPS = {
+  0: {
+    c1: "#ff7aa8",
+    c2: "#c81e5a",
+    glow: "#ff5d8f"
+  },
+  1: {
+    c1: "#ffd97a",
+    c2: "#d99413",
+    glow: "#ffcf5d"
+  },
+  2: {
+    c1: "#bf8cff",
+    c2: "#6b2fc9",
+    glow: "#a96bff"
+  },
+  3: {
+    c1: "#5fe8d8",
+    c2: "#129b8c",
+    glow: "#3fd6c5"
+  }
+};
+
+// 特殊ドロップ（アイテム）6種
+const ITEMS = {
+  star: {
+    mark: "★",
+    color: "#fff7d6",
+    ring: "rgba(255,221,90,.95)",
+    glowc: "#ffd54a",
+    name: "スター",
+    desc: "6個以上同時消しで効果(★の数+1)倍"
+  },
+  plus: {
+    mark: "＋",
+    color: "#eafaff",
+    ring: "rgba(120,210,255,.95)",
+    glowc: "#8ad8ff",
+    name: "プラス",
+    desc: "消した数を+1する"
+  },
+  three: {
+    mark: "3",
+    color: "#ffe1b0",
+    ring: "rgba(255,150,40,.95)",
+    glowc: "#ff9d2e",
+    name: "トリプル",
+    desc: "ちょうど3個で消すと3倍"
+  },
+  heal: {
+    mark: "♥",
+    color: "#d6ffe4",
+    ring: "rgba(80,230,140,.95)",
+    glowc: "#48e890",
+    name: "ヒール",
+    desc: "消すと10回復"
+  },
+  def: {
+    mark: "盾",
+    color: "#d6e8ff",
+    ring: "rgba(90,160,255,.95)",
+    glowc: "#5aa0ff",
+    name: "ガード",
+    desc: "消した効果の半分を防御に追加"
+  },
+  atk: {
+    mark: "剣",
+    color: "#ffd9d9",
+    ring: "rgba(255,90,90,.95)",
+    glowc: "#ff5a5a",
+    name: "ソード",
+    desc: "消した効果の半分を攻撃に追加"
+  },
+  atkx: {
+    mark: "攻",
+    color: "#ffe8cc",
+    ring: "rgba(255,140,0,.95)",
+    glowc: "#ff8c00",
+    name: "猛攻",
+    desc: "攻撃で消すと効果×2"
+  },
+  defx: {
+    mark: "防",
+    color: "#cce4ff",
+    ring: "rgba(0,160,255,.95)",
+    glowc: "#00a0ff",
+    name: "鉄壁",
+    desc: "防御で消すと効果×2"
+  }
+};
+const ITEM_KEYS = Object.keys(ITEMS);
+const ACTIONS = {
+  atk: {
+    label: "攻撃",
+    icon: "⚔",
+    per: ATK_PER,
+    color: "#ff5252",
+    bg: "rgba(255,82,82,.16)"
+  },
+  def: {
+    label: "防御",
+    icon: "🛡",
+    per: DEF_PER,
+    color: "#4d9bff",
+    bg: "rgba(77,155,255,.16)"
+  },
+  heal: {
+    label: "回復",
+    icon: "✚",
+    per: HEAL_PER,
+    color: "#41d97a",
+    bg: "rgba(65,217,122,.16)"
+  }
+};
+const ORDER = ["atk", "def", "heal"];
+let UID = 1;
+const makeDrop = (special = false) => ({
+  id: UID++,
+  type: Math.floor(Math.random() * 4),
+  special
+});
+const shuffle = arr => {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
+
+// ===== 袋（抽選プール）=====
+// owned: 各アイテムの所持数。bag: 現在袋に残っている枚数。
+const initOwned = () => ({
+  star: 1,
+  plus: 1,
+  three: 1,
+  heal: 3,
+  def: 3,
+  atk: 3,
+  atkx: 0,
+  defx: 0
+});
+const refillBag = owned => ({
+  ...owned
+});
+const bagTotal = bag => ITEM_KEYS.reduce((s, k) => s + bag[k], 0);
+// 袋から1枚引く（破壊的にbagを減らす）。空ならowned基準でリセットしてから引く
+const drawFromBag = (bagRef, ownedRef) => {
+  if (bagTotal(bagRef.current) <= 0) bagRef.current = refillBag(ownedRef.current);
+  const total = bagTotal(bagRef.current);
+  if (total <= 0) return "star";
+  let r = Math.floor(Math.random() * total);
+  for (const k of ITEM_KEYS) {
+    if (r < bagRef.current[k]) {
+      bagRef.current = {
+        ...bagRef.current,
+        [k]: bagRef.current[k] - 1
+      };
+      return k;
+    }
+    r -= bagRef.current[k];
+  }
+  return "star";
+};
+const makeBoard = (bagRef, ownedRef) => {
+  const cells = Array.from({
+    length: TOTAL
+  }, () => makeDrop(false));
+  const idxs = shuffle([...Array(TOTAL).keys()]);
+  for (let k = 0; k < NUM_SPECIAL; k++) cells[idxs[k]].special = drawFromBag(bagRef, ownedRef);
+  return cells;
+};
+const findGroup = (cells, idx) => {
+  const t = cells[idx].type;
+  const seen = new Set();
+  const ids = new Set();
+  const stack = [idx];
+  while (stack.length) {
+    const i = stack.pop();
+    if (seen.has(i)) continue;
+    seen.add(i);
+    if (cells[i].type !== t) continue;
+    ids.add(cells[i].id);
+    const r = Math.floor(i / SIZE),
+      c = i % SIZE;
+    if (r > 0) stack.push(i - SIZE);
+    if (r < SIZE - 1) stack.push(i + SIZE);
+    if (c > 0) stack.push(i - 1);
+    if (c < SIZE - 1) stack.push(i + 1);
+  }
+  return ids;
+};
+
+// グループ効果の計算
+const groupInfo = (cells, ids) => {
+  const sp = {
+    star: 0,
+    plus: 0,
+    three: 0,
+    heal: 0,
+    def: 0,
+    atk: 0,
+    atkx: 0,
+    defx: 0
+  };
+  for (const cell of cells) {
+    if (ids.has(cell.id) && cell.special) sp[cell.special]++;
+  }
+  const base = ids.size + sp.plus; // ＋で消去数を底上げ
+  let mult = 1;
+  const starOn = sp.star > 0 && base >= STAR_THRESHOLD;
+  if (starOn) mult *= 1 + sp.star; // ★1→2倍, 2→3倍...
+  const threeOn = ids.size === 3; // ちょうど3個（素の連結数）
+  if (sp.three > 0 && threeOn) mult *= 3;
+  return {
+    count: ids.size,
+    base,
+    sp,
+    mult,
+    starOn,
+    threeOn: threeOn && sp.three > 0
+  };
+};
+
+// 効果値を action ごとに算出（攻/防/回ドロップの付与込み）
+const computeEffect = (act, info) => {
+  let actBoost = 1;
+  if (act === "atk" && info.sp.atkx > 0) actBoost = 2;
+  if (act === "def" && info.sp.defx > 0) actBoost = 2;
+  const main = info.base * ACTIONS[act].per * info.mult * actBoost;
+  const healMult = act === "heal" ? 10 : 1;
+  const splitAtk = Math.round(info.sp.atk * main / 2 * healMult);
+  const splitDef = Math.round(info.sp.def * main / 2 * healMult);
+  const healBonus = info.sp.heal * 10;
+  return {
+    main,
+    splitAtk,
+    splitDef,
+    healBonus
+  };
+};
+const refill = (cells, removeIds, bagRef, ownedRef) => {
+  const next = cells.slice();
+  const newPositions = [];
+  for (let c = 0; c < SIZE; c++) {
+    const survivors = [];
+    for (let r = 0; r < SIZE; r++) {
+      const cell = cells[r * SIZE + c];
+      if (!removeIds.has(cell.id)) survivors.push(cell);
+    }
+    const need = SIZE - survivors.length;
+    const col = [];
+    for (let k = 0; k < need; k++) col.push(makeDrop(false));
+    for (const s of survivors) col.push(s);
+    for (let r = 0; r < SIZE; r++) {
+      next[r * SIZE + c] = col[r];
+      if (r < need) newPositions.push(r * SIZE + c);
+    }
+  }
+  let specials = 0;
+  for (const cell of next) if (cell.special) specials++;
+  let needSpecial = NUM_SPECIAL - specials;
+  if (needSpecial > 0) {
+    const np = shuffle(newPositions.slice());
+    for (let k = 0; k < needSpecial && k < np.length; k++) next[np[k]] = {
+      ...next[np[k]],
+      special: drawFromBag(bagRef, ownedRef)
+    };
+  }
+  return next;
+};
+function DropBattle() {
+  const ownedRef = useRef(initOwned());
+  const bagRef = useRef(refillBag(ownedRef.current));
+  const [ownedView, setOwnedView] = useState({
+    ...ownedRef.current
+  });
+  const [bagView, setBagView] = useState({
+    ...bagRef.current
+  });
+  const syncOwned = () => {
+    setOwnedView({
+      ...ownedRef.current
+    });
+    setBagView({
+      ...bagRef.current
+    });
+  };
+  const syncBag = () => setBagView({
+    ...bagRef.current
+  });
+  const [floor, setFloor] = useState(0);
+  const floorRef = useRef(0);
+  floorRef.current = floor;
+  const [board, setBoard] = useState(() => makeBoard(bagRef, ownedRef));
+  const [action, setAction] = useState("atk");
+  const [used, setUsed] = useState(new Set());
+  const [preview, setPreview] = useState(null);
+  const [clearing, setClearing] = useState(new Set());
+  const [locked, setLocked] = useState(false);
+  const [pHP, setPHP_] = useState(P_MAX);
+  const [eHP, setEHP_] = useState(FLOORS[0].hp);
+  const [eMax, setEMax] = useState(FLOORS[0].hp);
+  const pRef = useRef(P_MAX),
+    eRef = useRef(FLOORS[0].hp);
+  const setPHP = v => {
+    pRef.current = v;
+    setPHP_(v);
+  };
+  const setEHP = v => {
+    eRef.current = v;
+    setEHP_(v);
+  };
+  const [turn, setTurn] = useState(1);
+  const [status, setStatus] = useState("playing"); // playing | reward | clear | lose
+  const [log, setLog] = useState(["― 1階 バトル開始 ―"]);
+  const [fx, setFx] = useState([]); // ターン演出 [{text,color}]
+  const [rewards, setRewards] = useState([]); // 3択
+
+  const [tv, setTv] = useState({
+    atk: 0,
+    def: 0,
+    heal: 0
+  });
+  const turnRef = useRef({
+    atk: 0,
+    def: 0,
+    heal: 0
+  });
+  const syncTurn = () => setTv({
+    ...turnRef.current
+  });
+  const boardRef = useRef(board);
+  const actionRef = useRef(action);
+  const usedRef = useRef(used);
+  const lockedRef = useRef(locked);
+  const statusRef = useRef(status);
+  const turnNumRef = useRef(turn);
+  const pressingRef = useRef(false);
+  const startGroupRef = useRef(null);
+  const commitRef = useRef(() => {});
+  const onDefeatRef = useRef(() => {});
+  const [bagOpen, setBagOpen] = useState(false);
+  actionRef.current = action;
+  usedRef.current = used;
+  lockedRef.current = locked;
+  statusRef.current = status;
+  turnNumRef.current = turn;
+  const logRef = useRef(null);
+  useEffect(() => {
+    if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
+  }, [log]);
+  const addLog = lines => setLog(p => [...p, ...lines].slice(-40));
+  const commitBoard = next => {
+    boardRef.current = next;
+    setBoard(next);
+  };
+
+  // 演出を順番に出す（前の演出が残っていればキャンセル）
+  const fxTimer = useRef(null);
+  const playFx = (seq, after) => {
+    if (fxTimer.current) {
+      clearTimeout(fxTimer.current);
+      fxTimer.current = null;
+    }
+    setFx([]);
+    const items = Array.isArray(seq) ? seq.filter(Boolean) : [];
+    let i = 0;
+    const step = () => {
+      if (i >= items.length) {
+        fxTimer.current = setTimeout(() => {
+          setFx([]);
+          after && after();
+        }, 700);
+        return;
+      }
+      const item = items[i];
+      setFx(prev => [...prev, item]);
+      i++;
+      fxTimer.current = setTimeout(step, 720);
+    };
+    step();
+  };
+  const resolveTurn = useCallback(() => {
+    const {
+      atk,
+      def,
+      heal
+    } = turnRef.current;
+    const seq = [];
+    const logs = [`― ターン ${turnNumRef.current} 終了 ―`];
+    let e = eRef.current;
+    if (atk > 0) {
+      e = Math.max(0, e - atk);
+      seq.push({
+        text: `敵に ${atk} ダメージ！`,
+        color: "#ff6b6b"
+      });
+      logs.push(`⚔ 敵に ${atk} ダメージ`);
+    }
+    setEHP(e);
+    if (heal > 0) {
+      const before = pRef.current;
+      const np = Math.min(P_MAX, before + heal);
+      if (np - before > 0) {
+        seq.push({
+          text: `${np - before} 回復！`,
+          color: "#5bd98a"
+        });
+        logs.push(`✚ ${np - before} 回復`);
+      }
+      setPHP(np);
+    }
+    if (e <= 0) {
+      logs.push(`🏆 ${FLOORS[floorRef.current].name} を撃破！`);
+      addLog(logs);
+      playFx(seq, () => onDefeatRef.current());
+      return;
+    }
+    const enemyAtk = FLOORS[floorRef.current].atk;
+    const incoming = Math.max(0, enemyAtk - def);
+    seq.push({
+      text: `敵の攻撃 ${incoming} ダメージ！`,
+      color: "#ffae42"
+    });
+    logs.push(def > 0 ? `🛡 防御 ${def} → 敵の攻撃 ${incoming}` : `敵の攻撃 ${incoming} ダメージ`);
+    const p = Math.max(0, pRef.current - incoming);
+    setPHP(p);
+    addLog(logs);
+    playFx(seq, () => {
+      if (p <= 0) {
+        setStatus("lose");
+        statusRef.current = "lose";
+        setLocked(true);
+        lockedRef.current = true;
+        return;
+      }
+      turnRef.current = {
+        atk: 0,
+        def: 0,
+        heal: 0
+      };
+      syncTurn();
+      setUsed(new Set());
+      usedRef.current = new Set();
+      setAction("atk");
+      actionRef.current = "atk";
+      setTurn(t => t + 1);
+      setLocked(false);
+      lockedRef.current = false;
+    });
+  }, []);
+
+  // 撃破処理 → 報酬3択 or 全クリア
+  const onDefeat = () => {
+    if (floorRef.current >= FLOORS.length - 1) {
+      setStatus("clear");
+      statusRef.current = "clear";
+      setLocked(true);
+      lockedRef.current = true;
+      return;
+    }
+    const picks = shuffle(ITEM_KEYS.slice()).slice(0, 3);
+    setRewards(picks);
+    setStatus("reward");
+    statusRef.current = "reward";
+    setLocked(true);
+    lockedRef.current = true;
+  };
+  onDefeatRef.current = onDefeat;
+  const chooseReward = key => {
+    ownedRef.current = {
+      ...ownedRef.current,
+      [key]: ownedRef.current[key] + 1
+    };
+    bagRef.current = {
+      ...bagRef.current,
+      [key]: bagRef.current[key] + 1
+    }; // 即座に袋にも反映
+    syncOwned();
+    const nf = floorRef.current + 1;
+    setFloor(nf);
+    floorRef.current = nf;
+    const enemy = FLOORS[nf];
+    setEMax(enemy.hp);
+    setEHP(enemy.hp);
+    commitBoard(makeBoard(bagRef, ownedRef));
+    setAction("atk");
+    actionRef.current = "atk";
+    setUsed(new Set());
+    usedRef.current = new Set();
+    setPreview(null);
+    setClearing(new Set());
+    turnRef.current = {
+      atk: 0,
+      def: 0,
+      heal: 0
+    };
+    syncTurn();
+    setTurn(1);
+    addLog([`― ${nf + 1}階 ${ITEMS[key].name}を獲得！ ―`]);
+    setStatus("playing");
+    statusRef.current = "playing";
+    setLocked(false);
+    lockedRef.current = false;
+  };
+  const commit = useCallback(idx => {
+    if (lockedRef.current || statusRef.current !== "playing") return;
+    const act = actionRef.current;
+    if (!act || usedRef.current.has(act)) return;
+    const ids = findGroup(boardRef.current, idx);
+    const info = groupInfo(boardRef.current, ids);
+    const eff = computeEffect(act, info);
+    const next = refill(boardRef.current, ids, bagRef, ownedRef);
+    turnRef.current[act] += eff.main;
+    if (eff.splitAtk) turnRef.current.atk += eff.splitAtk;
+    if (eff.splitDef) turnRef.current.def += eff.splitDef;
+    if (eff.healBonus) turnRef.current.heal += eff.healBonus;
+    syncTurn();
+    const ll = [];
+    if (info.starOn) ll.push(`★ ${info.base}個消し ${info.mult}倍`);else if (info.threeOn) ll.push(`3 ちょうど3個 3倍`);
+    if (eff.splitAtk) ll.push(`剣 攻撃+${eff.splitAtk}`);
+    if (eff.splitDef) ll.push(`盾 防御+${eff.splitDef}`);
+    if (eff.healBonus) ll.push(`♥ 回復+${eff.healBonus}`);
+    if (ll.length) addLog([ll.join(" / ")]);
+    const newUsed = new Set(usedRef.current);
+    newUsed.add(act);
+    setUsed(newUsed);
+    usedRef.current = newUsed;
+    setClearing(new Set(ids));
+    setLocked(true);
+    lockedRef.current = true;
+    setTimeout(() => {
+      commitBoard(next);
+      setClearing(new Set());
+      syncBag();
+      if (newUsed.size >= 3) {
+        setTimeout(() => resolveTurn(), 350);
+      } else {
+        const nextAct = ORDER.find(a => !newUsed.has(a));
+        setAction(nextAct);
+        actionRef.current = nextAct;
+        setLocked(false);
+        lockedRef.current = false;
+      }
+    }, 240);
+  }, [resolveTurn]);
+  commitRef.current = commit;
+  const cellAt = (x, y) => {
+    const el = document.elementFromPoint(x, y);
+    const b = el && el.closest ? el.closest("[data-idx]") : null;
+    return b ? parseInt(b.getAttribute("data-idx"), 10) : null;
+  };
+  const makePreview = (b, idx) => {
+    const ids = findGroup(b, idx);
+    const info = groupInfo(b, ids);
+    return {
+      ids,
+      over: true,
+      info
+    };
+  };
+  useEffect(() => {
+    const move = e => {
+      if (!pressingRef.current) return;
+      const idx = cellAt(e.clientX, e.clientY);
+      if (idx == null) {
+        setPreview({ ids: new Set(), over: false, info: null });
+      } else {
+        const cellId = boardRef.current[idx].id;
+        if (startGroupRef.current && startGroupRef.current.has(cellId)) {
+          setPreview(makePreview(boardRef.current, idx));
+        } else {
+          setPreview({ ids: new Set(), over: false, info: null });
+        }
+      }
+    };
+    const up = e => {
+      if (!pressingRef.current) return;
+      pressingRef.current = false;
+      const idx = cellAt(e.clientX, e.clientY);
+      setPreview(null);
+      if (idx != null) {
+        const releaseId = boardRef.current[idx].id;
+        if (startGroupRef.current && startGroupRef.current.has(releaseId)) {
+          commitRef.current(idx);
+        }
+      }
+      startGroupRef.current = null;
+    };
+    window.addEventListener("pointermove", move, {
+      passive: false
+    });
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+    };
+  }, []);
+  const onDown = (e, idx) => {
+    if (lockedRef.current || statusRef.current !== "playing") return;
+    if (!actionRef.current || usedRef.current.has(actionRef.current)) return;
+    e.preventDefault();
+    pressingRef.current = true;
+    startGroupRef.current = findGroup(boardRef.current, idx);
+    setPreview(makePreview(boardRef.current, idx));
+  };
+  const endTurnEarly = () => {
+    if (locked || status !== "playing") return;
+    setPreview(null);
+    pressingRef.current = false;
+    setLocked(true);
+    lockedRef.current = true;
+    setTimeout(() => resolveTurn(), 150);
+  };
+  const restart = () => {
+    UID = 1;
+    ownedRef.current = initOwned();
+    bagRef.current = refillBag(ownedRef.current);
+    syncOwned();
+    setFloor(0);
+    floorRef.current = 0;
+    setEMax(FLOORS[0].hp);
+    setEHP(FLOORS[0].hp);
+    setPHP(P_MAX);
+    commitBoard(makeBoard(bagRef, ownedRef));
+    setAction("atk");
+    actionRef.current = "atk";
+    setUsed(new Set());
+    usedRef.current = new Set();
+    setPreview(null);
+    setClearing(new Set());
+    setLocked(false);
+    lockedRef.current = false;
+    setTurn(1);
+    setStatus("playing");
+    statusRef.current = "playing";
+    setLog(["― 1階 バトル開始 ―"]);
+    setFx([]);
+    turnRef.current = {
+      atk: 0,
+      def: 0,
+      heal: 0
+    };
+    syncTurn();
+  };
+  const info = preview && preview.over && preview.info && preview.info.count > 0 ? preview.info : null;
+  const actColor = action ? ACTIONS[action].color : "#fff";
+  const enemyAtk = FLOORS[floor].atk;
+  const incomingPreview = Math.max(0, enemyAtk - tv.def);
+  const remaining = 3 - used.size;
+  const numCell = {
+    display: "inline-block",
+    minWidth: 40,
+    textAlign: "right",
+    fontVariantNumeric: "tabular-nums"
+  };
+
+  // 選択中アクションの効果プレビュー値
+  const selEff = info ? computeEffect(action, info) : null;
+
+  // 袋の残り（表示用）
+  const bagRemain = bagView;
+  const bagLeft = ITEM_KEYS.reduce((s, k) => s + bagRemain[k], 0);
+  const ownedTotal = ITEM_KEYS.reduce((s, k) => s + ownedView[k], 0);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic',sans-serif",
+      minHeight: "100vh",
+      background: "radial-gradient(circle at 50% 0%, #2a1633 0%, #140d1f 55%, #0a0710 100%)",
+      color: "#f4eef9",
+      WebkitUserSelect: "none",
+      userSelect: "none"
+    },
+    className: "w-full flex justify-center px-3 py-2"
+  }, /*#__PURE__*/React.createElement("style", null, `
+        @keyframes dropIn { from { transform: translateY(-46px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+        @keyframes markPulse { 0%,100%{ opacity:.78 } 50%{ opacity:1 } }
+        @keyframes fxPop { 0%{ transform: scale(.6) translateY(8px); opacity:0 } 25%{ transform: scale(1.1) translateY(0); opacity:1 } 80%{ opacity:1 } 100%{ opacity:0; transform: translateY(-6px) } }
+        * { -webkit-touch-callout: none; }
+      `), /*#__PURE__*/React.createElement("div", {
+    className: "w-full",
+    style: {
+      maxWidth: 440
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between mb-1"
+  }, /*#__PURE__*/React.createElement("h1", {
+    className: "tracking-widest font-bold",
+    style: {
+      fontSize: "1.2rem",
+      textShadow: "0 0 12px #a96bff"
+    }
+  }, "\u30C9\u30ED\u30C3\u30D7\u30D0\u30C8\u30EB ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: "0.78rem",
+      color: "#ffcf5d"
+    }
+  }, floor + 1, "/", FLOORS.length, "\u968E")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setBagOpen(true),
+    className: "relative rounded-xl px-3 py-1.5 flex items-center gap-1.5",
+    style: {
+      background: "rgba(255,255,255,.08)",
+      border: "1px solid rgba(255,221,90,.5)"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: "1.1rem"
+    }
+  }, "\uD83C\uDF92"), /*#__PURE__*/React.createElement("span", {
+    className: "font-bold text-sm",
+    style: {
+      color: "#ffcf5d",
+      fontVariantNumeric: "tabular-nums"
+    }
+  }, "\xD7", ownedTotal))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-stretch gap-2 mb-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 rounded-xl p-2",
+    style: {
+      background: "rgba(65,217,122,.10)",
+      border: "1px solid rgba(65,217,122,.4)"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between items-center text-xs mb-1"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83E\uDDD9 \u3058\u3076\u3093"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#7CFFB0"
+    }
+  }, pHP, "/", P_MAX)), /*#__PURE__*/React.createElement(Bar, {
+    value: pHP,
+    max: P_MAX,
+    from: "#22c55e",
+    to: "#7CFFB0"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] mt-1",
+    style: {
+      opacity: 0.8
+    }
+  }, "\u6B21\u306E\u88AB\u30C0\u30E1 ", /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: "#ff9a9a"
+    }
+  }, incomingPreview))), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 rounded-xl p-2",
+    style: {
+      background: "rgba(255,82,82,.10)",
+      border: "1px solid rgba(255,82,82,.4)"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between items-center text-xs mb-1"
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#ff9a9a"
+    }
+  }, eHP, "/", eMax), /*#__PURE__*/React.createElement("span", null, "\uD83D\uDC79 \u3066\u304D")), /*#__PURE__*/React.createElement(Bar, {
+    value: eHP,
+    max: eMax,
+    from: "#7a1d1d",
+    to: "#ef4444"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] mt-1 text-right",
+    style: {
+      opacity: 0.8
+    }
+  }, "\u653B\u6483\u529B ", /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: "#ffcaca"
+    }
+  }, enemyAtk)))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between rounded-lg px-3 py-1 mb-1 text-xs",
+    style: {
+      background: "rgba(255,255,255,.06)"
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\u30BF\u30FC\u30F3 ", turn), /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center gap-1"
+  }, "\u6B8B\u308A", Array.from({
+    length: 3
+  }).map((_, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: "inline-block rounded-full",
+    style: {
+      width: 9,
+      height: 9,
+      background: i < remaining ? "#ffcf5d" : "rgba(255,255,255,.18)",
+      boxShadow: i < remaining ? "0 0 6px #ffcf5d" : "none"
+    }
+  }))), /*#__PURE__*/React.createElement("span", {
+    className: "flex gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#ff5252",
+      ...numCell
+    }
+  }, "\u2694", tv.atk), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#4d9bff",
+      ...numCell
+    }
+  }, "\uD83D\uDEE1", tv.def), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#41d97a",
+      ...numCell
+    }
+  }, "\u271A", tv.heal))), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-3 gap-2 mb-1"
+  }, ORDER.map(key => {
+    const a = ACTIONS[key];
+    const isUsed = used.has(key);
+    const isSel = action === key && !isUsed;
+    const crossBonus = !isSel && selEff ? (key === "atk" ? selEff.splitAtk : key === "def" ? selEff.splitDef : key === "heal" ? selEff.healBonus : 0) : 0;
+    const mkBreakdown = (total, base, bonus, tc) => /*#__PURE__*/React.createElement("span", {style:{display:"flex",alignItems:"baseline",gap:2,justifyContent:"center"}}, /*#__PURE__*/React.createElement("span", {style:{fontSize:"1.15rem",color:tc,fontWeight:900,textShadow:`0 0 8px ${tc}`}}, total), /*#__PURE__*/React.createElement("span", {style:{fontSize:"0.58rem",opacity:0.6}}, `(${base}+${bonus})`));
+    let valEl;
+    if (isSel && selEff) {
+      let v = selEff.main;
+      if (key === "atk") v += selEff.splitAtk;
+      if (key === "def") v += selEff.splitDef;
+      if (key === "heal") v += selEff.healBonus;
+      const base = tv[key];
+      valEl = base > 0 ? mkBreakdown(base + v, base, v, info && info.mult > 1 ? "#ffe88a" : "#fff") : `+${v}`;
+    } else if (crossBonus > 0) {
+      const base = tv[key];
+      valEl = base > 0 ? mkBreakdown(base + crossBonus, base, crossBonus, "#ffcf5d") : `+${crossBonus}`;
+    } else {
+      valEl = String(tv[key]);
+    }
+    return /*#__PURE__*/React.createElement("button", {
+      key: key,
+      onClick: () => {
+        if (!isUsed && !locked) setAction(key);
+      },
+      disabled: isUsed,
+      className: "rounded-xl flex flex-col items-center justify-center",
+      style: {
+        height: 64,
+        background: isUsed ? "rgba(0,0,0,.5)" : isSel ? a.bg : "rgba(255,255,255,.05)",
+        border: `2px solid ${isUsed ? "rgba(255,255,255,.07)" : isSel ? a.color : "rgba(255,255,255,.14)"}`,
+        boxShadow: isSel ? `0 0 16px -1px ${a.color}, inset 0 0 14px -5px ${a.color}` : "none",
+        opacity: isUsed ? 0.4 : 1,
+        transition: "background .15s ease, border-color .15s ease, box-shadow .15s ease"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: "1.15rem",
+        height: 22,
+        lineHeight: "22px",
+        color: isUsed ? "#777" : a.color,
+        filter: isSel ? `drop-shadow(0 0 6px ${a.color})` : "none"
+      }
+    }, a.icon), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 11,
+        height: 16,
+        lineHeight: "16px",
+        color: isUsed ? "#777" : "#e7e0ef"
+      }
+    }, a.label, /*#__PURE__*/React.createElement("span", {
+      style: { fontSize: 8, opacity: 0.5, marginLeft: 2 }
+    }, "\xD7", a.per)), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: "1.2rem",
+        height: 26,
+        lineHeight: "26px",
+        fontWeight: 700,
+        fontVariantNumeric: "tabular-nums",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: isSel && selEff && tv[key] === 0 ? info && info.mult > 1 ? "#ffe88a" : "#fff" : crossBonus > 0 && tv[key] === 0 ? "#ffcf5d" : isUsed ? a.color : tv[key] > 0 ? "#e0d8f0" : "#9b93a6",
+        textShadow: isSel && selEff && tv[key] === 0 && info && info.mult > 1 ? "0 0 8px #ffd54a" : "none"
+      }
+    }, valEl));
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "relative"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-6 gap-1.5 mb-2",
+    style: {
+      touchAction: "none"
+    },
+    onContextMenu: e => e.preventDefault()
+  }, board.map((cell, i) => {
+    const d = DROPS[cell.type];
+    const isPrev = preview && preview.over && preview.ids.has(cell.id);
+    const isClr = clearing.has(cell.id);
+    const it = cell.special ? ITEMS[cell.special] : null;
+    return /*#__PURE__*/React.createElement("button", {
+      key: cell.id,
+      "data-idx": i,
+      onPointerDown: e => onDown(e, i),
+      className: "relative rounded-xl",
+      style: {
+        aspectRatio: "1 / 1",
+        background: `radial-gradient(circle at 32% 26%, ${d.c1}, ${d.c2})`,
+        animation: "dropIn .26s ease",
+        boxShadow: isClr ? `0 0 22px 8px ${d.glow}` : isPrev ? `0 0 0 3px ${actColor}, 0 0 18px 4px ${actColor}` : it ? `inset 0 0 0 2px ${it.ring}, inset 0 -3px 5px rgba(0,0,0,.35), 0 0 9px 1px ${it.glowc}` : "inset 0 -3px 5px rgba(0,0,0,.4), 0 2px 3px rgba(0,0,0,.45)",
+        opacity: isClr ? 0 : 1,
+        transform: isClr ? "scale(1.25)" : isPrev ? "scale(1.08)" : "scale(1)",
+        transition: "transform .12s ease, opacity .2s ease, box-shadow .12s ease",
+        touchAction: "none"
+      }
+    }, it ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        position: "absolute",
+        inset: 0,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontWeight: 900,
+        fontSize: it.mark.length > 1 ? "0.8rem" : "1.25rem",
+        color: it.color,
+        textShadow: `0 0 5px ${it.glowc}, 0 1px 1px rgba(0,0,0,.55)`,
+        animation: "markPulse 1.6s ease-in-out infinite",
+        pointerEvents: "none"
+      }
+    }, it.mark) : /*#__PURE__*/React.createElement("span", {
+      style: {
+        width: "42%",
+        height: "42%",
+        borderRadius: "50%",
+        background: "rgba(255,255,255,.4)",
+        position: "absolute",
+        top: "14%",
+        left: "16%",
+        filter: "blur(1px)",
+        pointerEvents: "none"
+      }
+    }));
+  })), fx.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "absolute inset-0 flex flex-col items-center justify-center pointer-events-none",
+    style: {
+      gap: 8
+    }
+  }, fx.filter(Boolean).map((f, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      fontSize: "1.5rem",
+      fontWeight: 900,
+      color: f.color,
+      textShadow: `0 0 14px ${f.color}, 0 2px 3px #000`,
+      animation: "fxPop .72s ease forwards"
+    }
+  }, f.text)))), bagOpen && /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 flex items-center justify-center px-5",
+    style: {
+      background: "rgba(8,4,14,.85)",
+      zIndex: 60
+    },
+    onClick: () => setBagOpen(false)
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-full rounded-2xl p-4",
+    style: {
+      maxWidth: 360,
+      background: "rgba(24,15,34,.98)",
+      border: "1px solid rgba(255,221,90,.45)"
+    },
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between items-center mb-1"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "font-bold",
+    style: {
+      color: "#ffcf5d",
+      fontSize: "1.05rem"
+    }
+  }, "\uD83C\uDF92 \u6240\u6301\u30A2\u30A4\u30C6\u30E0"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setBagOpen(false),
+    className: "text-xs px-3 py-1 rounded-lg",
+    style: {
+      background: "rgba(255,255,255,.12)"
+    }
+  }, "\u9589\u3058\u308B")), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] mb-3",
+    style: {
+      opacity: 0.65
+    }
+  }, "\u5408\u8A08 ", ownedTotal, " \u500B \uFF0F \u4ECA\u306E\u62BD\u9078\u888B\u306B\u6B8B\u308A ", bagLeft, " \u500B"), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col gap-2"
+  }, ITEM_KEYS.map(k => {
+    const it = ITEMS[k];
+    return /*#__PURE__*/React.createElement("div", {
+      key: k,
+      className: "flex items-center gap-3 rounded-xl px-3 py-2",
+      style: {
+        background: "rgba(255,255,255,.05)",
+        border: `1px solid ${it.ring}`
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        minWidth: 28,
+        textAlign: "center",
+        fontWeight: 900,
+        color: it.color,
+        textShadow: `0 0 6px ${it.glowc}`,
+        fontSize: it.mark.length > 1 ? "0.95rem" : "1.3rem"
+      }
+    }, it.mark), /*#__PURE__*/React.createElement("span", {
+      className: "flex-1"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "font-bold text-sm",
+      style: {
+        color: it.glowc
+      }
+    }, it.name), /*#__PURE__*/React.createElement("span", {
+      className: "block text-[10px]",
+      style: {
+        opacity: 0.75
+      }
+    }, it.desc)), /*#__PURE__*/React.createElement("span", {
+      className: "text-right",
+      style: {
+        minWidth: 56
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "font-bold",
+      style: {
+        fontSize: "1.15rem",
+        color: "#fff",
+        fontVariantNumeric: "tabular-nums"
+      }
+    }, ownedView[k]), /*#__PURE__*/React.createElement("span", {
+      className: "block text-[9px]",
+      style: {
+        opacity: 0.5
+      }
+    }, "\u888B\u306B ", bagView[k])));
+  })), /*#__PURE__*/React.createElement("p", {
+    className: "text-[9px] mt-3",
+    style: {
+      opacity: 0.5
+    }
+  }, "\u7279\u6B8A\u304C\u6D88\u3048\u308B\u305F\u3073\u888B\u304B\u30891\u500B\u62BD\u9078\u3057\u76E4\u9762\u3078\u88DC\u5145\u3002\u888B\u304C\u7A7A\u306B\u306A\u308B\u3068\u6240\u6301\u6570\u3076\u3093\u88DC\u5145\u3055\u308C\u307E\u3059\u3002"))), /*#__PURE__*/React.createElement("div", {
+    ref: logRef,
+    className: "rounded-lg px-3 py-2 text-[11px] leading-relaxed",
+    style: {
+      background: "rgba(0,0,0,.35)",
+      height: 60,
+      overflowY: "auto",
+      border: "1px solid rgba(255,255,255,.08)"
+    }
+  }, log.map((l, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      opacity: l.startsWith("―") ? 0.55 : 0.95
+    }
+  }, l))), status === "reward" && /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 flex items-center justify-center px-5",
+    style: {
+      background: "rgba(8,4,14,.88)",
+      zIndex: 50
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-full",
+    style: {
+      maxWidth: 380
+    }
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "text-center font-bold mb-1",
+    style: {
+      fontSize: "1.2rem",
+      color: "#ffcf5d",
+      textShadow: "0 0 12px #ffcf5d"
+    }
+  }, "\uD83C\uDFC6 \u6483\u7834\uFF01"), /*#__PURE__*/React.createElement("p", {
+    className: "text-center text-xs mb-4",
+    style: {
+      opacity: 0.8
+    }
+  }, "\u30A2\u30A4\u30C6\u30E0\u30921\u3064\u9078\u3093\u3067 ", floor + 2, " \u968E\u3078"), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 gap-2"
+  }, rewards.map(k => {
+    const it = ITEMS[k];
+    return /*#__PURE__*/React.createElement("button", {
+      key: k,
+      onClick: () => chooseReward(k),
+      className: "rounded-xl px-4 py-3 flex items-center gap-3 text-left",
+      style: {
+        background: "rgba(255,255,255,.06)",
+        border: `2px solid ${it.ring}`,
+        boxShadow: `0 0 12px -3px ${it.glowc}`
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: it.mark.length > 1 ? "1.1rem" : "1.6rem",
+        fontWeight: 900,
+        color: it.color,
+        textShadow: `0 0 8px ${it.glowc}`,
+        minWidth: 32,
+        textAlign: "center"
+      }
+    }, it.mark), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
+      className: "font-bold",
+      style: {
+        color: it.glowc
+      }
+    }, it.name), /*#__PURE__*/React.createElement("span", {
+      className: "block text-[11px]",
+      style: {
+        opacity: 0.85
+      }
+    }, it.desc), /*#__PURE__*/React.createElement("span", {
+      className: "block text-[10px]",
+      style: {
+        opacity: 0.6
+      }
+    }, "\u6240\u6301 ", ownedView[k], " \u2192 ", ownedView[k] + 1)));
+  })))), (status === "clear" || status === "lose") && /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 flex items-center justify-center px-6",
+    style: {
+      background: "rgba(8,4,14,.85)",
+      zIndex: 50
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "font-bold",
+    style: {
+      fontSize: "2.2rem",
+      textShadow: `0 0 20px ${status === "clear" ? "#ffcf5d" : "#ef4444"}`
+    }
+  }, status === "clear" ? "🏆 ALL CLEAR" : "💀 LOSE"), /*#__PURE__*/React.createElement("p", {
+    className: "my-3 text-sm",
+    style: {
+      opacity: 0.85
+    }
+  }, status === "clear" ? "全10階を制覇した！" : `${floor + 1} 階で力尽きた…`), /*#__PURE__*/React.createElement("button", {
+    onClick: restart,
+    className: "rounded-xl px-6 py-2.5 tracking-widest font-bold",
+    style: {
+      background: "linear-gradient(180deg,#bf8cff,#6b2fc9)",
+      color: "#fff",
+      boxShadow: "0 3px 0 #4a1f8c"
+    }
+  }, "\u3082\u3046\u4E00\u5EA6")))));
+}
+function Bar({
+  value,
+  max,
+  from,
+  to
+}) {
+  const pct = Math.max(0, Math.min(100, value / max * 100));
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: 10,
+      borderRadius: 6,
+      background: "rgba(0,0,0,.4)",
+      overflow: "hidden"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: "100%",
+      width: `${pct}%`,
+      background: `linear-gradient(90deg, ${from}, ${to})`,
+      transition: "width .4s ease",
+      boxShadow: `0 0 8px ${to}`
+    }
+  }));
+}
+  var root = RD.createRoot(document.getElementById('root'));
+  root.render(React.createElement(DropBattle));
+})();
+</script>
+</body>
+</html>

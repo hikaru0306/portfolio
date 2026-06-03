@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>ナンバーマージ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --tile:#eef4ff; --tile-text:#1f3260;
+    --grey:#aeb6c4; --grey-text:#404a5c;
+    --yellow:#ffd23f; --yellow-edge:#e9b400;
+    --white:#f4f7ff; --ink:#0e1830;
+    --shadow:0 6px 0 rgba(0,0,0,.18), 0 10px 22px rgba(0,0,0,.28);
+    --empty-line:rgba(255,255,255,.16);
+  }
+  body[data-theme="add"]{--bg-0:#142a55;--bg-1:#1f3c72;--bg-2:#2c52a0;--accent:#5b9bff;--accent-deep:#2f6bd6;--op-grad:linear-gradient(135deg,#6fa8ff,#2f6bd6);--panel:rgba(0,0,0,.20);}
+  body[data-theme="sub"]{--bg-0:#42102a;--bg-1:#6a1738;--bg-2:#9e2351;--accent:#ff6f8c;--accent-deep:#d63a5e;--op-grad:linear-gradient(135deg,#ff8aa1,#d63a5e);--panel:rgba(0,0,0,.22);}
+  body[data-theme="neutral"]{--bg-0:#141b30;--bg-1:#202b4c;--bg-2:#2c3b66;--accent:#8aa0ff;--accent-deep:#5566cc;--op-grad:linear-gradient(135deg,#9db0ff,#5566cc);--panel:rgba(0,0,0,.20);}
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;}
+  body{
+    font-family:'M PLUS Rounded 1c',system-ui,sans-serif;color:var(--white);
+    background:radial-gradient(125% 80% at 50% -10%,var(--bg-2),transparent 60%),linear-gradient(160deg,var(--bg-1),var(--bg-0));
+    transition:background .55s ease;
+    display:flex;justify-content:center;align-items:flex-start;min-height:100%;overflow-x:hidden;
+    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  }
+  #app{width:min(100vw,440px);min-height:100vh;position:relative;}
+  .screen{display:none;flex-direction:column;gap:14px;padding:18px 16px 30px;min-height:100vh;}
+  .screen.show{display:flex;animation:fade .35s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* ---- タイトル ---- */
+  #screen-title{justify-content:center;align-items:center;text-align:center;gap:0;}
+  .hero-tiles{display:flex;align-items:center;gap:10px;margin-bottom:26px;}
+  .hero-tiles .t{width:62px;height:62px;border-radius:16px;display:grid;place-items:center;font-size:34px;font-weight:900;background:var(--tile);color:var(--tile-text);box-shadow:var(--shadow);animation:bob 2.4s ease-in-out infinite;}
+  .hero-tiles .op{font-size:30px;font-weight:900;opacity:.85;animation:bob 2.4s ease-in-out infinite .3s;}
+  .hero-tiles .t:nth-child(3){animation-delay:.45s;background:var(--accent);color:#fff;}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+  .game-title{font-size:42px;font-weight:900;letter-spacing:.04em;line-height:1.05;margin:0;}
+  .game-sub{font-size:13px;letter-spacing:.34em;opacity:.6;margin:10px 0 40px;font-weight:700;}
+  .start-btn{border:none;border-radius:18px;padding:16px 54px;cursor:pointer;font-family:inherit;font-weight:900;font-size:19px;color:#fff;background:var(--op-grad);box-shadow:0 6px 0 var(--accent-deep),0 12px 24px rgba(0,0,0,.3);transition:transform .07s,box-shadow .07s;}
+  .start-btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--accent-deep);}
+
+  /* ---- モード選択 ---- */
+  .screen-head{display:flex;align-items:center;gap:10px;margin-bottom:2px;}
+  .back{border:none;background:rgba(255,255,255,.1);color:var(--white);width:40px;height:40px;border-radius:12px;font-size:20px;cursor:pointer;font-family:inherit;display:grid;place-items:center;flex:0 0 auto;}
+  .back:active{transform:scale(.94);}
+  .head-title{font-size:20px;font-weight:800;letter-spacing:.04em;}
+  .seg-label{font-size:12px;font-weight:800;letter-spacing:.14em;opacity:.7;margin:6px 2px -4px;}
+  .size-seg{display:flex;gap:8px;background:rgba(0,0,0,.18);padding:6px;border-radius:14px;}
+  .seg{flex:1;border:none;border-radius:10px;padding:11px 4px;cursor:pointer;font-family:inherit;font-weight:800;font-size:15px;color:#cdd9f2;background:transparent;transition:.15s;}
+  .seg.on{background:var(--white);color:var(--ink);box-shadow:0 3px 0 rgba(0,0,0,.2);}
+  .mode-cards{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
+  .mode-card{border:none;cursor:pointer;font-family:inherit;text-align:left;color:#fff;border-radius:20px;padding:18px 20px;position:relative;overflow:hidden;box-shadow:0 6px 0 rgba(0,0,0,.22),0 12px 26px rgba(0,0,0,.28);transition:transform .08s,box-shadow .08s;}
+  .mode-card:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.22);}
+  .mode-card.add{background:linear-gradient(135deg,#3f74d6,#244a93);}
+  .mode-card.sub{background:linear-gradient(135deg,#d6486a,#8e2148);}
+  .mode-card.alt{background:linear-gradient(120deg,#3f74d6 0%,#3f74d6 42%,#d6486a 58%,#d6486a 100%);}
+  .mc-no{font-size:12px;font-weight:700;letter-spacing:.18em;opacity:.85;}
+  .mc-name{font-size:24px;font-weight:900;display:block;margin:2px 0 7px;}
+  .mc-ex{display:inline-block;font-size:14px;font-weight:800;background:rgba(255,255,255,.2);padding:5px 12px;border-radius:10px;margin-bottom:7px;}
+  .mc-desc{font-size:13px;opacity:.92;line-height:1.5;display:block;}
+
+  /* ---- ゲーム ---- */
+  .top{display:flex;align-items:center;gap:10px;}
+  .top .head-title{flex:1;}
+  .moves{font-size:12px;opacity:.78;font-weight:800;text-align:right;}
+  .status{display:flex;align-items:center;gap:13px;background:var(--panel);border-radius:16px;padding:11px 16px;min-height:64px;transition:background .55s ease;}
+  .op-badge{width:48px;height:48px;border-radius:13px;flex:0 0 auto;display:grid;place-items:center;font-size:32px;font-weight:900;color:#fff;background:var(--op-grad);box-shadow:0 4px 0 var(--accent-deep);transition:background .45s ease,box-shadow .45s ease;}
+  .op-text b{font-size:16px;} .op-text .formula{opacity:.82;font-size:13px;margin-top:2px;}
+  .controls{display:flex;gap:10px;}
+  .ctl{flex:1;border:none;border-radius:14px;padding:12px 4px;cursor:pointer;font-family:inherit;font-weight:800;font-size:15px;box-shadow:0 5px 0 rgba(0,0,0,.22);transition:transform .06s,box-shadow .06s;}
+  .ctl:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.22);}
+  .ctl.undo{background:var(--white);color:var(--ink);}
+  .ctl.reset{background:rgba(255,255,255,.16);color:#fff;}
+  .ctl.next{background:var(--op-grad);color:#fff;box-shadow:0 5px 0 var(--accent-deep);}
+  .ctl:disabled{opacity:.4;}
+
+  .board{display:grid;gap:9px;aspect-ratio:1/1;touch-action:none;}
+  .cell{position:relative;border-radius:14px;display:grid;place-items:center;font-size:var(--cf,30px);font-weight:800;user-select:none;}
+  .cell.num{background:var(--tile);color:var(--tile-text);box-shadow:var(--shadow);cursor:pointer;transition:transform .1s,box-shadow .1s;}
+  .cell.num:active{transform:scale(.96);}
+  .cell.empty{background:rgba(255,255,255,.04);border:2px dashed var(--empty-line);}
+  .cell.empty.movable{border-color:var(--accent);background:rgba(255,255,255,.08);cursor:pointer;}
+  .cell.selected{background:var(--tile);color:var(--tile-text);box-shadow:0 0 0 5px var(--accent),var(--shadow);transform:scale(1.05);}
+  /* スワイプで持ち上げ中 */
+  .cell.holding{z-index:5;background:var(--tile);color:var(--tile-text);transform:scale(1.16) translateY(-2px);box-shadow:0 0 0 6px var(--accent),0 14px 26px rgba(0,0,0,.45);}
+  /* スワイプの行き先 */
+  .cell.aim{border:3px solid var(--accent)!important;background:var(--accent)!important;color:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.25);}
+  .cell.aim .preview{color:#fff;opacity:1;font-size:calc(var(--cf,30px)*.55);}
+  .cell.target{background:var(--grey);color:var(--grey-text);font-size:var(--cft,24px);}
+  .cell.target .lab{position:absolute;top:4px;left:0;right:0;text-align:center;font-size:9px;font-weight:700;opacity:.55;letter-spacing:.08em;}
+  .cell.target.done{background:var(--yellow);color:#5a4500;box-shadow:0 0 0 3px var(--yellow-edge) inset,0 6px 14px rgba(255,210,63,.35);animation:pop .3s;}
+  .cell.corner{visibility:hidden;}
+  .cell .preview{position:absolute;bottom:3px;right:6px;font-size:calc(var(--cf,30px)*.38);font-weight:900;color:var(--accent-deep);opacity:.9;}
+  @keyframes pop{0%{transform:scale(.8)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+  @keyframes merge{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+  .merged{animation:merge .25s;}
+  .hint{font-size:12px;opacity:.66;text-align:center;line-height:1.6;}
+
+  /* マイナス禁止フィードバック */
+  @keyframes shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-8px)}30%{transform:translateX(8px)}45%{transform:translateX(-6px)}60%{transform:translateX(6px)}75%{transform:translateX(-3px)}90%{transform:translateX(3px)}}
+  #app.shake{animation:shake .42s;}
+  .toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(12px);background:rgba(214,58,94,.96);color:#fff;padding:13px 22px;border-radius:14px;font-weight:800;font-size:14px;opacity:0;pointer-events:none;z-index:40;box-shadow:0 8px 24px rgba(0,0,0,.45);transition:opacity .18s,transform .18s;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* タイムアタック */
+  .ta-start{margin-top:14px;border:none;border-radius:18px;padding:17px 12px;cursor:pointer;font-family:inherit;font-weight:900;font-size:17px;color:#fff;background:linear-gradient(120deg,#3f74d6,#7d3fb0 50%,#d6486a);box-shadow:0 6px 0 rgba(0,0,0,.25),0 12px 26px rgba(0,0,0,.3);transition:transform .08s,box-shadow .08s;}
+  .ta-start:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.25);}
+  .ta-start small{display:block;font-size:12px;font-weight:700;opacity:.85;margin-top:3px;letter-spacing:.02em;}
+  .moves.timer{font-size:17px;font-weight:900;font-variant-numeric:tabular-nums;opacity:1;}
+  .ta-splits{display:flex;flex-direction:column;gap:6px;margin:4px 0 14px;}
+  .ta-splits .row{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:800;color:#1f3260;background:#eef2fb;border-radius:11px;padding:10px 15px;}
+  .ta-splits .row b{font-variant-numeric:tabular-nums;font-size:16px;}
+  .ta-total{font-size:15px;font-weight:800;margin-bottom:4px;color:#33405e;}
+  .ta-total b{font-size:34px;color:#1f3260;font-variant-numeric:tabular-nums;display:block;margin-top:2px;}
+  .ta-best{font-size:13px;font-weight:800;opacity:.75;margin:6px 0 18px;color:#33405e;}
+  .ta-best.newrec{color:#e2a200;opacity:1;font-size:16px;}
+
+  /* ---- クリア ---- */
+  .overlay{position:fixed;inset:0;background:rgba(8,14,32,.8);display:none;flex-direction:column;justify-content:center;align-items:center;z-index:30;backdrop-filter:blur(3px);}
+  .overlay.show{display:flex;animation:fade .3s;}
+  .clear-card{background:linear-gradient(160deg,#fff,#e9f0ff);color:var(--ink);border-radius:24px;padding:32px 36px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.5);animation:pop .4s;width:min(82vw,330px);}
+  .clear-card h2{margin:0 0 6px;font-size:34px;letter-spacing:.06em;color:#e2a200;}
+  .clear-card p{margin:0 0 22px;font-size:14px;opacity:.7;}
+  .clear-card .cbtn{border:none;border-radius:15px;padding:14px 10px;cursor:pointer;font-family:inherit;font-weight:800;font-size:16px;width:100%;}
+  .clear-card .cbtn.go{color:#fff;background:var(--op-grad);box-shadow:0 5px 0 var(--accent-deep);margin-bottom:10px;}
+  .clear-card .cbtn.home{background:#e7ecf7;color:var(--ink);}
+  .clear-card .cbtn:active{transform:translateY(3px);}
+</style>
+</head>
+<body data-theme="neutral">
+<div id="app">
+
+  <section id="screen-title" class="screen show">
+    <div class="hero-tiles"><div class="t">2</div><div class="op">＋</div><div class="t">1</div><div class="op">→</div><div class="t" style="background:var(--accent);color:#fff">3</div></div>
+    <h1 class="game-title">ナンバー<br>マージ</h1>
+    <div class="game-sub">SLIDE &amp; MERGE</div>
+    <button class="start-btn" id="toMode">はじめる</button>
+  </section>
+
+  <section id="screen-mode" class="screen">
+    <div class="screen-head"><button class="back" id="modeBack">←</button><div class="head-title">ルールを選ぶ</div></div>
+    <div class="seg-label">ばんめんサイズ</div>
+    <div class="size-seg" id="sizeSeg">
+      <button class="seg on" data-size="3">3 × 3</button>
+      <button class="seg" data-size="4">4 × 4</button>
+      <button class="seg" data-size="5">5 × 5</button>
+    </div>
+    <div class="seg-label" style="margin-top:10px">けいさんモード（1つずつ練習）</div>
+    <div class="mode-cards">
+      <button class="mode-card add" data-mode="1"><span class="mc-no">モード 1</span><span class="mc-name">足し算</span><span class="mc-ex">2 ＋ 1 → 3</span><span class="mc-desc">重ねると数を足していく。画面は青。</span></button>
+      <button class="mode-card sub" data-mode="2"><span class="mc-no">モード 2</span><span class="mc-name">引き算</span><span class="mc-ex">5 − 2 → 3</span><span class="mc-desc">重ねると数を引いていく。画面は赤。0で消滅。</span></button>
+      <button class="mode-card alt" data-mode="3"><span class="mc-no">モード 3</span><span class="mc-name">交互</span><span class="mc-ex">＋ ⇄ −</span><span class="mc-desc">1手ごとに足し算と引き算が交代。色も青⇄赤。</span></button>
+    </div>
+    <button class="ta-start" id="taStartBtn">⏱ タイムアタック<small>足し算→引き算→交互を連続クリア・合計タイムを競う</small></button>
+  </section>
+
+  <section id="screen-game" class="screen">
+    <div class="top"><button class="back" id="gameBack">←</button><div class="head-title" id="gameModeName">足し算</div><div class="moves" id="moves">手数 0</div></div>
+    <div class="status">
+      <div class="op-badge" id="opBadge">＋</div>
+      <div class="op-text"><b id="opTitle">次の操作：足し算</b><div class="formula" id="formula">数字をタップ／スワイプで移動</div></div>
+    </div>
+    <div class="controls">
+      <button class="ctl undo" id="undo">もどす</button>
+      <button class="ctl reset" id="reset">リセット</button>
+      <button class="ctl next" id="next">新しい問題</button>
+    </div>
+    <div class="board" id="board"></div>
+    <div class="hint">数字をタップ→隣をタップ、または数字をスワイプして移動。<br>灰色は各行・各列の目標値。合えば黄色。全部黄色でクリア！</div>
+  </section>
+
+  <div class="overlay" id="overlay">
+    <div class="clear-card"><h2>クリア！</h2><p id="clearMsg"></p>
+      <button class="cbtn go" id="nextWin">次の問題へ</button>
+      <button class="cbtn home" id="homeWin">ルール選択へ</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="taResult">
+    <div class="clear-card">
+      <h2 id="taTitle">完走！</h2>
+      <div class="ta-splits" id="taSplits"></div>
+      <div class="ta-total">合計タイム<b id="taTotal">0:00.00</b></div>
+      <div class="ta-best" id="taBestLine"></div>
+      <button class="cbtn go" id="taRetry">もう一度</button>
+      <button class="cbtn home" id="taHome">ルール選択へ</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+"use strict";
+let N=3, SIZE=4, mode=1, chosenSize=3;
+let grid, rowTargets, colTargets, moveCount=0;
+let selected=null, holding=null, aimCell=null;
+let history=[], startSnap=null, solved=false, lastMerged=null;
+let touchStart=null, rafPending=false, capturedId=null, blockedNeg=false;
+let isTA=false, taStage=0, taSize=3, taStart=0, taSplits=[], taRunning=false, taRAF=null, taBestMem={};
+const TA_MODES=[1,2,3];
+
+const $=id=>document.getElementById(id);
+const board=$("board");
+const MODE_NAME={1:"足し算",2:"引き算",3:"交互"};
+
+const clone=g=>g.map(r=>r.slice());
+const randInt=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function rowSum(g,r){let s=0;for(let c=0;c<N;c++)s+=g[r][c];return s;}
+function colSum(g,c){let s=0;for(let r=0;r<N;r++)s+=g[r][c];return s;}
+function inGrid(r,c){return r>=0&&r<N&&c>=0&&c<N;}
+function emptyNeighbors(g,r,c){const res=[];for(const[dr,dc]of[[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc;if(inGrid(nr,nc)&&g[nr][nc]===0)res.push([nr,nc]);}return res;}
+function filledCells(g){const a=[];for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(g[r][c]>0)a.push([r,c]);return a;}
+function allCells(){const a=[];for(let r=0;r<N;r++)for(let c=0;c<N;c++)a.push([r,c]);return a;}
+function adjacent(r1,c1,r2,c2){return Math.abs(r1-r2)+Math.abs(c1-c2)===1;}
+function opForMove(m,idx){if(m===1)return'+';if(m===2)return'-';return idx%2===0?'+':'-';}
+function currentOp(){return opForMove(mode,moveCount);}
+
+/* ---- 生成（自己検証つき・必ず解ける） ---- */
+function makeSolution(){const g=Array.from({length:N},()=>Array(N).fill(0));const cells=shuffle(allCells());const cnt=randInt(Math.round(N*N*0.42),Math.round(N*N*0.58));for(let i=0;i<cnt;i++){const[r,c]=cells[i];g[r][c]=randInt(1,6);}return g;}
+function applyReverse(g,op){
+  const cands=shuffle(filledCells(g));
+  for(const[r,c]of cands){
+    const val=g[r][c];const em=emptyNeighbors(g,r,c);if(em.length===0)continue;
+    const[er,ec]=em[Math.floor(Math.random()*em.length)];
+    const cp=op==='+'&&val>=2,cm=op==='-';const rel=Math.random()<0.4||(!cp&&!cm);
+    const move={src:[er,ec],dst:[r,c]};
+    if(rel){g[er][ec]=val;g[r][c]=0;return move;}
+    if(op==='+'){const d=randInt(1,val-1);g[r][c]=d;g[er][ec]=val-d;return move;}
+    const CAP=14,maxD=CAP-val;if(maxD<1){g[er][ec]=val;g[r][c]=0;return move;}
+    const d=randInt(1,maxD);g[r][c]=d;g[er][ec]=val+d;return move;
+  }
+  return null;
+}
+function targetsMatch(g){for(let r=0;r<N;r++)if(rowSum(g,r)!==rowTargets[r])return false;for(let c=0;c<N;c++)if(colSum(g,c)!==colTargets[c])return false;return true;}
+function verifySolvable(start,fwd){let g=clone(start),mc=0;for(const mv of fwd){const[fr,fc]=mv.src,[tr,tc]=mv.dst;const m=g[fr][fc],d=g[tr][tc];if(m<=0)return false;const op=opForMove(mode,mc);const res=d===0?m:(op==='+'?m+d:m-d);if(res<0)return false;g[fr][fc]=0;g[tr][tc]=res;mc++;}return targetsMatch(g);}
+function generate(){
+  for(let a=0;a<800;a++){
+    const S=makeSolution();const rt=[],ct=[];for(let i=0;i<N;i++){rt.push(rowSum(S,i));ct.push(colSum(S,i));}
+    const K=randInt(Math.round(N*N*0.55),Math.round(N*N*0.9));let g=clone(S);const revs=[];
+    for(let j=1;j<=K;j++){const op=opForMove(mode,K-j);const mv=applyReverse(g,op);if(mv)revs.push(mv);}
+    const fwd=revs.slice().reverse();rowTargets=rt;colTargets=ct;grid=g;
+    if(fwd.length>=N&&!targetsMatch(g)&&filledCells(g).length>=N&&verifySolvable(g,fwd))return;
+  }
+  const S=makeSolution();rowTargets=[];colTargets=[];for(let i=0;i<N;i++){rowTargets.push(rowSum(S,i));colTargets.push(colSum(S,i));}grid=clone(S);
+  for(const[r,c]of filledCells(grid)){const em=emptyNeighbors(grid,r,c);if(em.length&&grid[r][c]>=2){const[er,ec]=em[0];grid[er][ec]=1;grid[r][c]-=1;break;}}
+}
+
+/* ---- 操作 ---- */
+function pushHistory(){history.push({grid:clone(grid),moveCount});if(history.length>300)history.shift();}
+function resultOf(fr,fc,tr,tc){const m=grid[fr][fc];if(m<=0)return null;const d=grid[tr][tc];if(d===0)return m;const op=currentOp();const res=op==='+'?m+d:m-d;return res<0?null:res;}
+function doMove(fr,fc,tr,tc){
+  blockedNeg=false;
+  const m=grid[fr][fc],d=grid[tr][tc];
+  if(m>0&&d>0&&currentOp()==='-'&&m-d<0){
+    blockedNeg=true;shake();toast(`${m} − ${d} はマイナス。移動できません`);render();return false;
+  }
+  const res=resultOf(fr,fc,tr,tc);if(res===null)return false;
+  pushHistory();grid[fr][fc]=0;grid[tr][tc]=res;moveCount++;selected=null;lastMerged=grid[tr][tc]>0?{r:tr,c:tc}:null;render();if(targetsMatch(grid))win();return true;
+}
+function onCellTap(r,c){
+  if(solved||!inGrid(r,c))return;const v=grid[r][c];
+  if(selected){const s=selected;if(s.r===r&&s.c===c){selected=null;render();return;}if(adjacent(s.r,s.c,r,c)){if(doMove(s.r,s.c,r,c))return;if(blockedNeg)return;}if(v>0){selected={r,c};render();return;}selected=null;render();return;}
+  if(v>0){selected={r,c};render();}
+}
+function dirToCell(sr,sc,dx,dy){if(Math.abs(dx)>Math.abs(dy)){const c=sc+(dx>0?1:-1);return inGrid(sr,c)?{r:sr,c}:null;}const r=sr+(dy>0?1:-1);return inGrid(r,sc)?{r,c:sc}:null;}
+
+function onDown(r,c,ev){
+  if(solved)return;
+  if(inGrid(r,c)&&grid[r][c]>0){
+    touchStart={r,c,x:ev.clientX,y:ev.clientY};
+    holding=null;aimCell=null;
+    try{board.setPointerCapture(ev.pointerId);capturedId=ev.pointerId;}catch(e){}
+  }else touchStart=null;
+}
+function onMove(ev){
+  if(!touchStart)return;
+  const dx=ev.clientX-touchStart.x,dy=ev.clientY-touchStart.y;
+  if(Math.hypot(dx,dy)<10){if(holding){holding=null;aimCell=null;renderT();}return;}
+  if(!holding){holding={r:touchStart.r,c:touchStart.c};selected=null;}
+  aimCell=dirToCell(touchStart.r,touchStart.c,dx,dy);
+  renderT();
+}
+function onUp(ev){
+  if(capturedId!=null){try{board.releasePointerCapture(capturedId);}catch(e){}capturedId=null;}
+  if(holding){const h=holding,a=aimCell;holding=null;aimCell=null;const ts=touchStart;touchStart=null;if(a)doMove(h.r,h.c,a.r,a.c);else render();return;}
+  if(touchStart){const{r,c}=touchStart;touchStart=null;onCellTap(r,c);return;}
+  const t=ev.target.closest&&ev.target.closest(".cell");if(t)onCellTap(+t.dataset.r,+t.dataset.c);
+}
+
+/* ---- 盤面構築・描画 ---- */
+function fitBoard(){
+  const cw=$("app").clientWidth-32;if(cw<=0)return;
+  const gap=parseInt(getComputedStyle(board).gap)||9;
+  const tile=(cw-gap*(SIZE-1))/SIZE;
+  board.style.setProperty('--cf',Math.max(14,Math.round(tile*0.46))+'px');
+  board.style.setProperty('--cft',Math.max(11,Math.round(tile*0.34))+'px');
+}
+function buildBoard(){
+  SIZE=N+1;
+  board.style.gridTemplateColumns=`repeat(${SIZE},1fr)`;
+  board.style.gridTemplateRows=`repeat(${SIZE},1fr)`;
+  board.style.gap=(N>=5?7:9)+'px';
+  board.innerHTML="";
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){const cell=document.createElement("div");cell.className="cell";cell.dataset.r=r;cell.dataset.c=c;board.appendChild(cell);}
+  fitBoard();
+}
+function setSize(n){N=n;SIZE=n+1;buildBoard();}
+
+function applyTheme(){document.body.dataset.theme=currentOp()==='+'?'add':'sub';}
+function renderT(){if(rafPending)return;rafPending=true;requestAnimationFrame(()=>{rafPending=false;render();});}
+function render(){
+  applyTheme();
+  const op=currentOp();
+  $("opBadge").textContent=op==='+'?'＋':'−';
+  $("opTitle").textContent="次の操作："+(op==='+'?'足し算':'引き算');
+  if(isTA){$("gameModeName").textContent=MODE_NAME[mode]+`（${taStage+1}/3）`;$("moves").classList.add("timer");}
+  else{$("gameModeName").textContent=MODE_NAME[mode];$("moves").classList.remove("timer");$("moves").textContent="手数 "+moveCount;}
+  const src=holding||selected;
+  if(src)$("formula").textContent=`選択中：${grid[src.r][src.c]}　行き先へ`;
+  else $("formula").textContent=mode===3?"1手ごとに ＋ / − が交互":"数字をタップ／スワイプで移動";
+
+  const cells=board.children;
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    const el=cells[r*SIZE+c];el.className="cell";el.innerHTML="";
+    const isRowT=(c===N&&r<N),isColT=(r===N&&c<N);
+    if(isRowT||isColT){
+      el.classList.add("target");
+      const sum=isRowT?rowSum(grid,r):colSum(grid,c);
+      const tgt=isRowT?rowTargets[r]:colTargets[c];
+      el.textContent=tgt;const lab=document.createElement("div");lab.className="lab";lab.textContent=isRowT?"行":"列";el.appendChild(lab);
+      if(sum===tgt)el.classList.add("done");continue;
+    }
+    if(r>=N||c>=N){el.classList.add("corner");continue;}
+    const v=grid[r][c];
+    if(v>0){el.classList.add("num");el.textContent=v;
+      if(holding&&holding.r===r&&holding.c===c)el.classList.add("holding");
+      else if(selected&&selected.r===r&&selected.c===c)el.classList.add("selected");
+      if(lastMerged&&lastMerged.r===r&&lastMerged.c===c)el.classList.add("merged");
+    }else el.classList.add("empty");
+    if(src&&adjacent(src.r,src.c,r,c)){
+      const res=resultOf(src.r,src.c,r,c);
+      if(res!==null){el.classList.add("movable");
+        const p=document.createElement("div");p.className="preview";p.textContent="→"+res;el.appendChild(p);
+        if(aimCell&&aimCell.r===r&&aimCell.c===c)el.classList.add("aim");
+      }
+    }
+  }
+  lastMerged=null;$("undo").disabled=history.length===0;
+}
+
+/* ---- 制御・遷移 ---- */
+function shake(){const a=$("app");a.classList.remove("shake");void a.offsetWidth;a.classList.add("shake");}
+let toastTimer=null;
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),1500);}
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("show",s.id===id));}
+function newGame(){solved=false;moveCount=0;selected=null;holding=null;aimCell=null;history=[];lastMerged=null;$("overlay").classList.remove("show");fitBoard();generate();startSnap={N,grid:clone(grid),rowTargets:rowTargets.slice(),colTargets:colTargets.slice()};render();}
+function resetGame(){if(!startSnap)return;solved=false;grid=clone(startSnap.grid);rowTargets=startSnap.rowTargets.slice();colTargets=startSnap.colTargets.slice();moveCount=0;selected=null;holding=null;aimCell=null;history=[];lastMerged=null;$("overlay").classList.remove("show");render();}
+function undo(){if(!history.length)return;const s=history.pop();grid=clone(s.grid);moveCount=s.moveCount;selected=null;holding=null;aimCell=null;render();}
+function win(){
+  solved=true;
+  if(isTA){taWin();return;}
+  $("clearMsg").textContent=`${moveCount} 手でクリア`;setTimeout(()=>$("overlay").classList.add("show"),260);
+}
+function goMode(){document.body.dataset.theme="neutral";$("overlay").classList.remove("show");show("screen-mode");}
+
+/* ---- タイムアタック ---- */
+function fmtTime(ms){const t=Math.max(0,ms);const m=Math.floor(t/60000);const s=Math.floor(t/1000)%60;const cs=Math.floor((t%1000)/10);return `${m}:${String(s).padStart(2,'0')}.${String(cs).padStart(2,'0')}`;}
+function loadBest(sz){try{const v=localStorage.getItem('ta_best_'+sz);if(v!=null)return +v;}catch(e){}return (taBestMem[sz]!=null)?taBestMem[sz]:null;}
+function saveBest(sz,v){taBestMem[sz]=v;try{localStorage.setItem('ta_best_'+sz,String(v));}catch(e){}}
+function startTimer(){taRunning=true;const loop=()=>{if(!taRunning)return;if(isTA)$("moves").textContent=fmtTime(performance.now()-taStart);taRAF=requestAnimationFrame(loop);};loop();}
+function stopTimer(){taRunning=false;if(taRAF)cancelAnimationFrame(taRAF);}
+function startTimeAttack(){
+  isTA=true;taStage=0;taSplits=[];taSize=chosenSize;
+  $("next").style.display="none";$("reset").textContent="やり直す";
+  $("taResult").classList.remove("show");
+  setSize(taSize);mode=TA_MODES[0];show("screen-game");
+  newGame();
+  taStart=performance.now();startTimer();
+}
+function taWin(){
+  const now=performance.now();
+  const prev=taSplits.reduce((a,b)=>a+b,0);
+  taSplits.push((now-taStart)-prev);
+  taStage++;
+  if(taStage<TA_MODES.length){
+    toast(`${MODE_NAME[TA_MODES[taStage-1]]} クリア！ つぎは ${MODE_NAME[TA_MODES[taStage]]}`);
+    setTimeout(()=>{mode=TA_MODES[taStage];newGame();},950);
+  }else{finishTA();}
+}
+function finishTA(){
+  stopTimer();
+  const total=taSplits.reduce((a,b)=>a+b,0);
+  const best=loadBest(taSize);
+  let isNew=false;
+  if(best==null||total<best){isNew=true;saveBest(taSize,total);}
+  const sp=$("taSplits");sp.innerHTML="";
+  TA_MODES.forEach((m,i)=>{const row=document.createElement("div");row.className="row";row.innerHTML=`<span>${MODE_NAME[m]}</span><b>${fmtTime(taSplits[i])}</b>`;sp.appendChild(row);});
+  $("taTitle").textContent=`完走！（${taSize}×${taSize}）`;
+  $("taTotal").textContent=fmtTime(total);
+  const bl=$("taBestLine");
+  if(isNew){bl.className="ta-best newrec";bl.textContent=(best==null)?"★ はじめての記録！":`★ 新記録！ 旧ベスト ${fmtTime(best)}`;}
+  else{bl.className="ta-best";bl.textContent=`ベスト ${fmtTime(best)}`;}
+  document.body.dataset.theme="neutral";
+  setTimeout(()=>$("taResult").classList.add("show"),300);
+}
+function quitTA(){stopTimer();isTA=false;$("next").style.display="";$("reset").textContent="リセット";$("taResult").classList.remove("show");goMode();}
+
+/* ---- イベント ---- */
+$("toMode").addEventListener("click",()=>{document.body.dataset.theme="neutral";show("screen-mode");});
+$("modeBack").addEventListener("click",()=>{document.body.dataset.theme="neutral";show("screen-title");});
+$("gameBack").addEventListener("click",()=>{if(isTA)quitTA();else goMode();});
+$("sizeSeg").addEventListener("click",e=>{const b=e.target.closest(".seg");if(!b)return;chosenSize=+b.dataset.size;[...$("sizeSeg").children].forEach(x=>x.classList.toggle("on",x===b));});
+document.querySelectorAll(".mode-card").forEach(card=>card.addEventListener("click",()=>{isTA=false;$("next").style.display="";$("reset").textContent="リセット";mode=+card.dataset.mode;setSize(chosenSize);show("screen-game");newGame();}));
+$("taStartBtn").addEventListener("click",startTimeAttack);
+$("taRetry").addEventListener("click",startTimeAttack);
+$("taHome").addEventListener("click",quitTA);
+$("undo").addEventListener("click",undo);
+$("reset").addEventListener("click",resetGame);
+$("next").addEventListener("click",newGame);
+$("nextWin").addEventListener("click",newGame);
+$("homeWin").addEventListener("click",goMode);
+
+board.addEventListener("pointerdown",ev=>{const t=ev.target.closest(".cell");if(!t)return;onDown(+t.dataset.r,+t.dataset.c,ev);});
+board.addEventListener("pointermove",onMove);
+board.addEventListener("pointerup",onUp);
+board.addEventListener("pointercancel",()=>{holding=null;aimCell=null;touchStart=null;if(capturedId!=null){try{board.releasePointerCapture(capturedId);}catch(e){}capturedId=null;}render();});
+window.addEventListener("resize",()=>{if($("screen-game").classList.contains("show"))fitBoard();});
+document.addEventListener("touchmove",e=>{if(e.target.closest(".board"))e.preventDefault();},{passive:false});
+
+buildBoard();
+</script>
+</body>
+</html>
