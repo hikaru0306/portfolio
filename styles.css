@@ -1962,10 +1962,13 @@ html.js .is-in .tag-row span {
 }
 .proto-frame {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  left: 0;
+  width: calc(100% / 0.85);
+  height: calc(100% / 0.85);
   border: none;
+  transform: scale(0.85);
+  transform-origin: top left;
   display: none;
 }
 .proto-frame.is-active { display: block; }
