@@ -355,7 +355,7 @@ window.PORTFOLIO_DATA = {
           type: "proto-tabs",
           tabs: [
             { label: "ナンバーマージ",  src: "number_merge_puzzle.html?v=2" },
-            { label: "I Can Shot",     src: "i_can_shot_10.html?v=2" },
+            { label: "I Can Shot",     src: "i_can_shot_11.html?v=2" },
             { label: "ドロップバトル", src: "dropbattle.html?v=2" }
           ]
         }
