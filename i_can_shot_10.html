@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-<title>I Can Shot — プロトタイプ</title>
+<title>I Can Shot（アイ カン ショット）— 缶バトルTPS</title>
 <style>
   :root{
     --ink:#1b1b1f;
@@ -37,7 +37,7 @@
   /* oxygen */
   #o2wrap{position:fixed;left:22px;bottom:22px;width:min(38vw,320px);}
   #o2label{font-weight:800;color:#15324f;font-size:14px;letter-spacing:.06em;text-shadow:0 1px 0 #fff;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
-  #o2label .lung{width:16px;height:16px;border-radius:50% 50% 48% 52%;background:#15324f;display:inline-block;}
+  #o2label .lung{width:14px;height:16px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:linear-gradient(180deg,#ff9a3c,#e0392c);display:inline-block;transform:rotate(-6deg);}
   #o2bar{height:22px;border:3px solid var(--line);border-radius:13px;background:var(--o2-bg);overflow:hidden;box-shadow:0 3px 0 rgba(0,0,0,.12);}
   #o2fill{height:100%;width:100%;background:linear-gradient(180deg,#ff6b5a,#e74b3c);transition:width .06s linear;}
   #o2fill.low{animation:o2blink .5s steps(2) infinite;}
@@ -66,6 +66,22 @@
   /* hint */
   #hint{position:fixed;right:22px;bottom:22px;text-align:right;font-size:12px;color:#15324f;font-weight:700;line-height:1.7;text-shadow:0 1px 0 #fff;opacity:.85;}
   #hint b{background:#15324f;color:#fff;border-radius:6px;padding:1px 7px;margin-right:4px;font-size:11px;}
+
+  /* touch controls (mobile only) */
+  #touchControls{display:none;}
+  .tbtn{position:fixed;bottom:max(28px,env(safe-area-inset-bottom));width:96px;height:96px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;letter-spacing:.04em;
+    pointer-events:auto;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;
+    border:4px solid rgba(255,255,255,.85);box-shadow:0 5px 14px rgba(0,0,0,.3);font-size:17px;touch-action:none;}
+  .tbtn span{pointer-events:none;}
+  .tbtn:active{transform:scale(.92);}
+  #shotBtn{right:26px;background:radial-gradient(circle at 38% 32%, #ff6b5f, #e0392c);font-size:15px;}
+  #hideBtn{left:26px;background:radial-gradient(circle at 38% 32%, #5aa0e6, #2f5fae);font-size:16px;}
+  body.touch #touchControls{display:block;}
+  body.touch #hint{display:none;}
+  body.touch{touch-action:none;}
+  /* keep the gauge clear of the bottom-left HIDE button on phones */
+  body.touch #o2wrap{ bottom:calc(env(safe-area-inset-bottom) + 138px); width:min(54vw,300px); }
 
   /* hidden = almost can't see (inside the dark can); only a faint center remains */
   #vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center, rgba(0,0,0,.55) 0%, rgba(0,0,0,.82) 9%, rgba(0,0,0,.97) 24%, rgba(0,0,0,1) 42%);opacity:0;transition:opacity .12s;z-index:-1;}
@@ -118,14 +134,18 @@
   <div id="zoneInfo">安全エリア <span class="num" id="zoneRtxt">—</span></div>
   <div id="zoneWarn">⚠ エリア外！ <span class="sec" id="zoneSec">5</span>秒で脱落</div>
   <div id="count"><span class="lab">のこり</span><span class="num"><span id="aliveN">20</span><small>/20</small></span></div>
-  <div id="kills"><span class="lab">KILLS</span><span class="num" id="killN">0</span></div>
+  <div id="kills"><span class="lab">KO</span><span class="num" id="killN">0</span></div>
   <div id="feed"></div>
   <div id="o2wrap">
-    <div id="o2label"><span class="lung"></span>酸素ゲージ</div>
+    <div id="o2label"><span class="lung"></span>熱ゲージ</div>
     <div id="o2bar"><div id="o2fill"></div></div>
-    <div id="o2warn">酸欠！全回復まで動けない…</div>
+    <div id="o2warn">オーバーヒート！気絶中…動けない</div>
   </div>
   <div id="hideTag">缶に隠れている</div>
+  <div id="touchControls">
+    <div id="hideBtn" class="tbtn"><span>隠れる</span></div>
+    <div id="shotBtn" class="tbtn"><span>ショット</span></div>
+  </div>
   <div id="hint">
     <div><b>マウス</b>視点 / ねらう</div>
     <div><b>左クリック</b>ショット</div>
@@ -139,16 +159,17 @@
 <div id="start" class="screen">
   <div class="card">
     <div class="logo">I <span class="can">CAN</span> SHOT</div>
-    <div class="sub">TPS バトルロイヤル ・ プロトタイプ</div>
+    <div class="sub">缶バトルTPS ・ バトルロワイヤル</div>
     <div class="blurb">
-      動けない。できるのは <b>狙う</b>・<b>撃つ</b>・<b>隠れる</b> だけ。<br>
-      空き缶から顔を出した相手を 1 撃で落とせ。<br>
-      撃たれそうになったら缶に隠れろ。ただし酸素は続かない。<br>
-      最後の 1 人になるまで生き残れ！
+      移動操作はなし。できるのは <b>エイム</b>・<b>ショット</b>・<b>隠れる</b> だけ。<br>
+      缶から顔を出した相手は当たると <b>1発でKO</b>（連射はできない）。<br>
+      撃たれそうになったら缶に隠れろ。隠れている間は<b>無敵</b>。<br>
+      ただし潜伏中は <b>熱ゲージ</b> を消費。0になるとオーバーヒートで動けない。<br>
+      最後の1人になるまで生き残れ！
     </div>
     <div class="keys">
-      <b>マウス</b><span>視点移動・照準</span>
-      <b>左クリック / Y</b><span>ショット（敵=撃破／空き缶=瞬間移動）</span>
+      <b>マウス</b><span>エイム移動・照準</span>
+      <b>左クリック</b><span>ショット（敵=KO／空き缶=瞬間移動）</span>
       <b>右クリ / Space</b><span>隠れる（押している間）</span>
     </div>
     <div class="sens">感度
@@ -156,7 +177,7 @@
       <span id="sensVal">1.1</span>
     </div>
     <button class="btn" id="startBtn">バトル開始</button>
-    <div class="credit">原案企画書「アイ カン ショット」より / ブラウザ再現版</div>
+    <div class="credit">企画「I Can Shot（アイ カン ショット）」中川飛甲瑠 / ブラウザ再現版</div>
   </div>
 </div>
 
@@ -165,7 +186,7 @@
   <div class="card">
     <div id="resultText" class="result"></div>
     <div class="rank">順位 <b id="rankN">-</b> <span style="font-size:16px">/ 20</span></div>
-    <div class="rank" style="margin-top:6px">撃破 <b id="killResult">0</b> <span style="font-size:16px">キル</span></div>
+    <div class="rank" style="margin-top:6px">KO <b id="killResult">0</b> <span style="font-size:16px">体</span></div>
     <div id="endTip" class="tip"></div>
     <button class="btn" id="retryBtn">もう一度</button>
   </div>
@@ -193,7 +214,8 @@ const CFG = {
   CAM_UP: 5.2,
   BOT_THINK: 0.18,      // seconds between bot decisions (staggered)
   GRACE: 4.5,           // seconds at match start where bots don't fire
-  SIGHT: 150,           // bot vision range
+  DUCK_CHANCE: 0.06,    // per-think chance a bot randomly ducks for a few sec
+  SIGHT: 125,           // bot vision range
   BULLET_SPEED: 246,    // units/sec (1.5x of 164): very fast, flat
   BULLET_R: 0.3,        // bullet radius (smaller)
   BULLET_LIFE: 7.0,     // seconds before despawn
@@ -436,6 +458,9 @@ let zoneWall = null, zoneFloor = null;
 
 // input
 const input = { hide:false, fireQueued:false };
+const IS_TOUCH = (('ontouchstart' in window) || navigator.maxTouchPoints > 0)
+  && (window.matchMedia ? window.matchMedia('(pointer: coarse)').matches : true);
+let lookTouchId = null, lookLastX = 0, lookLastY = 0, hideTouchId = null;
 
 // helpers
 const tmpV = new THREE.Vector3();
@@ -668,6 +693,7 @@ function buildMatch(){
       think: rand(0, CFG.BOT_THINK),
       aimTarget:null, fireTimer:0,
       teleCd: rand(2,8),
+      duckCd: rand(1,5),
       reaction: t.react,
       outsideTimer: CFG.ZONE_GRACE,
       // --- per-bot personality ---
@@ -795,9 +821,9 @@ function feedAdd(victim, byHuman){
   const el = document.getElementById('feed');
   const d = document.createElement('div');
   d.className='feed-item';
-  if(victim.human) d.innerHTML = '<span class="me">YOU</span> が撃破された';
-  else if(byHuman) d.innerHTML = '<span class="me">YOU</span> ▸ 撃破！';
-  else d.textContent = 'プレイヤー撃破';
+  if(victim.human) d.innerHTML = '<span class="me">YOU</span> がKOされた';
+  else if(byHuman) d.innerHTML = '<span class="me">YOU</span> ▸ KO！ +1PT';
+  else d.textContent = 'プレイヤーがKO';
   el.appendChild(d);
   setTimeout(()=>{ d.style.opacity=0; setTimeout(()=>d.remove(),300); }, 2200);
   while(el.children.length>5) el.removeChild(el.firstChild);
@@ -1173,6 +1199,17 @@ function updateBot(bot, dt){
 
   // decide hide vs peek — committed durations + personality, NOT a synced coin flip
   bot.stateTimer -= dt;
+
+  // random "duck for a few seconds" break — even while engaging (whack-a-mole)
+  bot.duckCd -= CFG.BOT_THINK;
+  if(bot.exposed && bot.duckCd<=0 && Math.random() < CFG.DUCK_CHANCE*(1.3-bot.aggression)){
+    bot.exposed = false;
+    bot.aimTarget = null;            // bail on any pending shot
+    bot.stateTimer = rand(1.5,4.0);  // stay tucked in for a bit
+    bot.duckCd = rand(3,7);
+    placeFigure(bot); return;
+  }
+
   if(!bot.exposed){
     // hidden: stay down for hideDur, but surface early if oxygen runs low
     if(bot.o2 < rand(20,40) || bot.stateTimer<=0){
@@ -1373,10 +1410,10 @@ function endMatch(win){
     rank.textContent='1';
     tip.textContent='最後の1人。読み勝ち。';
   }else{
-    rt.textContent='撃破された'; rt.className='result lose';
+    rt.textContent='KOされた'; rt.className='result lose';
     rank.textContent = aliveCount; // others remaining + you = aliveCount(=remaining incl. not-you)+? -> show remaining+? 
     rank.textContent = (aliveCount+1>20?20:aliveCount+1);
-    const tips=['顔を出しっぱなしは的。撃ったらすぐ隠れる。','酸欠で固まると一番危ない。引っ込めすぎ注意。','空き缶を撃って横取りの角度を取れ。','缶の位置＝敵の位置。出てくる瞬間を狙え。'];
+    const tips=['顔を出しっぱなしは的。撃ったらすぐ隠れる。','オーバーヒートで気絶すると一番危ない。隠れすぎ注意。','空き缶を撃って横取りの角度を取れ。','缶の位置＝敵の位置。出てくる瞬間を狙え。'];
     tip.textContent = pick(tips);
   }
   setTimeout(()=>{ document.getElementById('hud').className='hud-off'; end.style.display='flex'; }, 650);
@@ -1409,18 +1446,19 @@ function onMouseMove(e){
   pitch -= my*0.0022*sensitivity;
   pitch = Math.max(-0.40, Math.min(0.50, pitch));
 }
-function requestPointer(){ renderer.domElement.requestPointerLock(); }
+function requestPointer(){ if(!IS_TOUCH) renderer.domElement.requestPointerLock(); }
 function exitPointer(){ if(document.pointerLockElement) document.exitPointerLock(); }
 
 function bindInput(){
-  document.addEventListener('mousemove', onMouseMove);
+  // ----- desktop: mouse + keyboard (disabled on touch devices) -----
+  document.addEventListener('mousemove',(e)=>{ if(IS_TOUCH) return; onMouseMove(e); });
   document.addEventListener('mousedown',(e)=>{
-    if(!running) return;
+    if(IS_TOUCH || !running) return;
     if(document.pointerLockElement!==renderer.domElement){ requestPointer(); return; }
     if(e.button===0){ input.fireQueued=true; }
     if(e.button===2){ input.hide=true; }
   });
-  document.addEventListener('mouseup',(e)=>{ if(e.button===2) input.hide=false; });
+  document.addEventListener('mouseup',(e)=>{ if(!IS_TOUCH && e.button===2) input.hide=false; });
   document.addEventListener('contextmenu',(e)=>e.preventDefault());
   document.addEventListener('keydown',(e)=>{
     if(!running) return;
@@ -1431,12 +1469,56 @@ function bindInput(){
   document.addEventListener('keyup',(e)=>{
     if(e.code==='Space'||e.code==='KeyB') input.hide=false;
   });
-  document.addEventListener('pointerlockchange',()=>{
-    // if user escapes during play, keep game running but freeze aim; clicking re-locks
-  });
+  document.addEventListener('pointerlockchange',()=>{});
+
+  // ----- mobile: drag to look, on-screen SHOT / HIDE buttons -----
+  if(IS_TOUCH){
+    document.body.classList.add('touch');
+    document.addEventListener('touchstart', onTouchStart, {passive:false});
+    document.addEventListener('touchmove',  onTouchMove,  {passive:false});
+    document.addEventListener('touchend',   onTouchEnd);
+    document.addEventListener('touchcancel',onTouchEnd);
+    // reflect touch controls on the start screen
+    const keys=document.querySelector('.keys');
+    if(keys) keys.innerHTML =
+      '<b>画面ドラッグ</b><span>エイム移動・照準</span>'+
+      '<b>ショット ボタン</b><span>ショット（敵=KO／空き缶=瞬間移動）</span>'+
+      '<b>隠れる ボタン</b><span>押している間だけ缶に隠れる</span>';
+  }
 
   const sens=document.getElementById('sens'), sval=document.getElementById('sensVal');
   sens.addEventListener('input',()=>{ sensitivity=parseFloat(sens.value); sval.textContent=sens.value; });
+}
+
+function onTouchStart(e){
+  if(!running) return;
+  for(const t of e.changedTouches){
+    const el = document.elementFromPoint(t.clientX, t.clientY);
+    if(el && el.closest('#shotBtn')){ input.fireQueued=true; continue; }
+    if(el && el.closest('#hideBtn')){ input.hide=true; hideTouchId=t.identifier; continue; }
+    // anything else = look-drag (use the first such finger)
+    if(lookTouchId===null){ lookTouchId=t.identifier; lookLastX=t.clientX; lookLastY=t.clientY; }
+  }
+  e.preventDefault();
+}
+function onTouchMove(e){
+  if(!running) return;
+  for(const t of e.changedTouches){
+    if(t.identifier===lookTouchId){
+      const dx=t.clientX-lookLastX, dy=t.clientY-lookLastY;
+      lookLastX=t.clientX; lookLastY=t.clientY;
+      yaw   -= dx*0.005*sensitivity;
+      pitch -= dy*0.005*sensitivity;
+      pitch = Math.max(-0.40, Math.min(0.50, pitch));
+    }
+  }
+  e.preventDefault();
+}
+function onTouchEnd(e){
+  for(const t of e.changedTouches){
+    if(t.identifier===lookTouchId) lookTouchId=null;
+    if(t.identifier===hideTouchId){ input.hide=false; hideTouchId=null; }
+  }
 }
 
 // ---------------------------------------------------------------------------
