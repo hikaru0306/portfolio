@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ナンバーマージ">
+<meta name="theme-color" content="#1f3c72">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="icon-192.png">
 <title>ナンバーマージ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,7 +38,7 @@
     padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
   }
   #app{width:min(100vw,440px);min-height:100vh;position:relative;}
-  .screen{display:none;flex-direction:column;gap:14px;padding:18px 16px 30px;min-height:100vh;}
+  .screen{display:none;flex-direction:column;gap:10px;padding:12px 16px 16px;min-height:100vh;}
   .screen.show{display:flex;animation:fade .35s ease;}
   @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
@@ -53,20 +59,20 @@
   .back{border:none;background:rgba(255,255,255,.1);color:var(--white);width:40px;height:40px;border-radius:12px;font-size:20px;cursor:pointer;font-family:inherit;display:grid;place-items:center;flex:0 0 auto;}
   .back:active{transform:scale(.94);}
   .head-title{font-size:20px;font-weight:800;letter-spacing:.04em;}
-  .seg-label{font-size:12px;font-weight:800;letter-spacing:.14em;opacity:.7;margin:6px 2px -4px;}
+  .seg-label{font-size:12px;font-weight:800;letter-spacing:.14em;opacity:.7;margin:2px 2px -6px;}
   .size-seg{display:flex;gap:8px;background:rgba(0,0,0,.18);padding:6px;border-radius:14px;}
-  .seg{flex:1;border:none;border-radius:10px;padding:11px 4px;cursor:pointer;font-family:inherit;font-weight:800;font-size:15px;color:#cdd9f2;background:transparent;transition:.15s;}
+  .seg{flex:1;border:none;border-radius:10px;padding:9px 4px;cursor:pointer;font-family:inherit;font-weight:800;font-size:15px;color:#cdd9f2;background:transparent;transition:.15s;}
   .seg.on{background:var(--white);color:var(--ink);box-shadow:0 3px 0 rgba(0,0,0,.2);}
-  .mode-cards{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
-  .mode-card{border:none;cursor:pointer;font-family:inherit;text-align:left;color:#fff;border-radius:20px;padding:18px 20px;position:relative;overflow:hidden;box-shadow:0 6px 0 rgba(0,0,0,.22),0 12px 26px rgba(0,0,0,.28);transition:transform .08s,box-shadow .08s;}
+  .mode-cards{display:flex;flex-direction:column;gap:8px;margin-top:2px;}
+  .mode-card{border:none;cursor:pointer;font-family:inherit;text-align:left;color:#fff;border-radius:15px;padding:11px 15px;position:relative;overflow:hidden;box-shadow:0 5px 0 rgba(0,0,0,.22),0 9px 18px rgba(0,0,0,.26);transition:transform .08s,box-shadow .08s;}
   .mode-card:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.22);}
   .mode-card.add{background:linear-gradient(135deg,#3f74d6,#244a93);}
   .mode-card.sub{background:linear-gradient(135deg,#d6486a,#8e2148);}
   .mode-card.alt{background:linear-gradient(120deg,#3f74d6 0%,#3f74d6 42%,#d6486a 58%,#d6486a 100%);}
   .mc-no{font-size:12px;font-weight:700;letter-spacing:.18em;opacity:.85;}
-  .mc-name{font-size:24px;font-weight:900;display:block;margin:2px 0 7px;}
-  .mc-ex{display:inline-block;font-size:14px;font-weight:800;background:rgba(255,255,255,.2);padding:5px 12px;border-radius:10px;margin-bottom:7px;}
-  .mc-desc{font-size:13px;opacity:.92;line-height:1.5;display:block;}
+  .mc-name{font-size:19px;font-weight:900;display:block;margin:0 0 3px;}
+  .mc-ex{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:800;background:rgba(255,255,255,.2);padding:5px 11px;border-radius:9px;}
+  .mc-desc{font-size:12px;opacity:.9;line-height:1.3;display:block;padding-right:96px;}
 
   /* ---- ゲーム ---- */
   .top{display:flex;align-items:center;gap:10px;}
@@ -112,9 +118,9 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
   /* タイムアタック */
-  .ta-start{margin-top:14px;border:none;border-radius:18px;padding:17px 12px;cursor:pointer;font-family:inherit;font-weight:900;font-size:17px;color:#fff;background:linear-gradient(120deg,#3f74d6,#7d3fb0 50%,#d6486a);box-shadow:0 6px 0 rgba(0,0,0,.25),0 12px 26px rgba(0,0,0,.3);transition:transform .08s,box-shadow .08s;}
+  .ta-start{margin-top:8px;border:none;border-radius:15px;padding:11px 12px;cursor:pointer;font-family:inherit;font-weight:900;font-size:16px;color:#fff;background:linear-gradient(120deg,#3f74d6,#7d3fb0 50%,#d6486a);box-shadow:0 5px 0 rgba(0,0,0,.25),0 9px 18px rgba(0,0,0,.3);transition:transform .08s,box-shadow .08s;}
   .ta-start:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.25);}
-  .ta-start small{display:block;font-size:12px;font-weight:700;opacity:.85;margin-top:3px;letter-spacing:.02em;}
+  .ta-start small{display:block;font-size:11px;font-weight:700;opacity:.85;margin-top:1px;letter-spacing:.02em;}
   .moves.timer{font-size:17px;font-weight:900;font-variant-numeric:tabular-nums;opacity:1;}
   .ta-splits{display:flex;flex-direction:column;gap:6px;margin:4px 0 14px;}
   .ta-splits .row{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:800;color:#1f3260;background:#eef2fb;border-radius:11px;padding:10px 15px;}
@@ -123,6 +129,22 @@
   .ta-total b{font-size:34px;color:#1f3260;font-variant-numeric:tabular-nums;display:block;margin-top:2px;}
   .ta-best{font-size:13px;font-weight:800;opacity:.75;margin:6px 0 18px;color:#33405e;}
   .ta-best.newrec{color:#e2a200;opacity:1;font-size:16px;}
+  /* ランキング */
+  .ta-online{margin:4px 0 14px;text-align:left;}
+  .lb-note{font-size:12px;color:#7c8aa6;font-weight:700;margin:0 2px 8px;}
+  .lb-name-row{display:flex;gap:8px;margin-bottom:10px;}
+  .lb-name-row input{flex:1;border:2px solid #d6deef;border-radius:12px;padding:11px 13px;font-family:inherit;font-size:15px;font-weight:700;color:#1f3260;min-width:0;}
+  .lb-name-row input:focus{outline:none;border-color:#5b9bff;}
+  .lb-reg{border:none;border-radius:12px;padding:0 18px;font-family:inherit;font-weight:800;font-size:14px;color:#fff;background:#2f6bd6;cursor:pointer;white-space:nowrap;}
+  .lb-reg:disabled{opacity:.5;}
+  .lb-list{display:flex;flex-direction:column;gap:5px;max-height:230px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .lb-row{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:800;color:#1f3260;background:#f1f5fc;border-radius:10px;padding:9px 12px;}
+  .lb-row .rk{width:24px;text-align:center;color:#7c8aa6;font-variant-numeric:tabular-nums;}
+  .lb-row .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lb-row .tm{font-variant-numeric:tabular-nums;}
+  .lb-row.top1 .rk{color:#e2a200;font-size:16px;}
+  .lb-row.me{background:#fff3cf;color:#5a4500;box-shadow:0 0 0 2px #e9b400 inset;}
+  .lb-empty{font-size:13px;color:#7c8aa6;text-align:center;padding:14px;font-weight:700;}
 
   /* ---- クリア ---- */
   .overlay{position:fixed;inset:0;background:rgba(8,14,32,.8);display:none;flex-direction:column;justify-content:center;align-items:center;z-index:30;backdrop-filter:blur(3px);}
@@ -154,13 +176,14 @@
       <button class="seg" data-size="4">4 × 4</button>
       <button class="seg" data-size="5">5 × 5</button>
     </div>
-    <div class="seg-label" style="margin-top:10px">けいさんモード（1つずつ練習）</div>
+    <div class="seg-label" style="margin-top:8px">けいさんモード</div>
     <div class="mode-cards">
-      <button class="mode-card add" data-mode="1"><span class="mc-no">モード 1</span><span class="mc-name">足し算</span><span class="mc-ex">2 ＋ 1 → 3</span><span class="mc-desc">重ねると数を足していく。画面は青。</span></button>
-      <button class="mode-card sub" data-mode="2"><span class="mc-no">モード 2</span><span class="mc-name">引き算</span><span class="mc-ex">5 − 2 → 3</span><span class="mc-desc">重ねると数を引いていく。画面は赤。0で消滅。</span></button>
-      <button class="mode-card alt" data-mode="3"><span class="mc-no">モード 3</span><span class="mc-name">交互</span><span class="mc-ex">＋ ⇄ −</span><span class="mc-desc">1手ごとに足し算と引き算が交代。色も青⇄赤。</span></button>
+      <button class="mode-card add" data-mode="1"><span class="mc-no">モード 1</span><span class="mc-name">足し算</span><span class="mc-ex">2 ＋ 1 → 3</span><span class="mc-desc">重ねて足す（画面は青）</span></button>
+      <button class="mode-card sub" data-mode="2"><span class="mc-no">モード 2</span><span class="mc-name">引き算</span><span class="mc-ex">5 − 2 → 3</span><span class="mc-desc">重ねて引く（画面は赤）。0で消滅</span></button>
+      <button class="mode-card alt" data-mode="3"><span class="mc-no">モード 3</span><span class="mc-name">交互</span><span class="mc-ex">＋ ⇄ −</span><span class="mc-desc">1手ごとに＋−が交代（青⇄赤）</span></button>
     </div>
-    <button class="ta-start" id="taStartBtn">⏱ タイムアタック<small>足し算→引き算→交互を連続クリア・合計タイムを競う</small></button>
+    <button class="ta-start" id="taStartBtn">⏱ タイムアタック<small>3モード連続・合計タイムを競う</small></button>
+    <button class="ta-start" id="lbViewBtn" style="display:none;background:linear-gradient(120deg,#e0a200,#c47e00);">🏆 ランキングを見る<small>選んだサイズの上位タイム</small></button>
   </section>
 
   <section id="screen-game" class="screen">
@@ -191,9 +214,26 @@
       <div class="ta-splits" id="taSplits"></div>
       <div class="ta-total">合計タイム<b id="taTotal">0:00.00</b></div>
       <div class="ta-best" id="taBestLine"></div>
+      <div class="ta-online" id="taOnline" style="display:none">
+        <div class="lb-note">みんなのランキングに登録</div>
+        <div class="lb-name-row">
+          <input id="lbNameInput" maxlength="12" placeholder="なまえ" />
+          <button class="lb-reg" id="lbRegBtn">登録</button>
+        </div>
+        <div class="lb-list" id="lbResultList"></div>
+      </div>
       <button class="cbtn go" id="taRetry">もう一度</button>
       <button class="cbtn home" id="taHome">ルール選択へ</button>
     </div>
+  </div>
+</div>
+
+<div class="overlay" id="lbOverlay">
+  <div class="clear-card">
+    <h2 style="color:#e2a200;font-size:26px">🏆 ランキング</h2>
+    <div class="lb-note" id="lbOverlayNote"></div>
+    <div class="lb-list" id="lbOverlayList" style="margin-bottom:16px"></div>
+    <button class="cbtn home" id="lbCloseBtn">とじる</button>
   </div>
 </div>
 
@@ -411,10 +451,53 @@ function finishTA(){
   const bl=$("taBestLine");
   if(isNew){bl.className="ta-best newrec";bl.textContent=(best==null)?"★ はじめての記録！":`★ 新記録！ 旧ベスト ${fmtTime(best)}`;}
   else{bl.className="ta-best";bl.textContent=`ベスト ${fmtTime(best)}`;}
+  if(lbEnabled()){$("taOnline").style.display="";$("lbNameInput").value=getPlayerName();refreshResultLb();}
+  else{$("taOnline").style.display="none";}
   document.body.dataset.theme="neutral";
   setTimeout(()=>$("taResult").classList.add("show"),300);
 }
 function quitTA(){stopTimer();isTA=false;$("next").style.display="";$("reset").textContent="リセット";$("taResult").classList.remove("show");goMode();}
+
+/* ---- ランキング（Firebase / 任意） ---- */
+function lbEnabled(){return !!(window.LB&&window.LB.enabled);}
+function getPlayerName(){try{return localStorage.getItem("player_name")||"";}catch(e){return "";}}
+function setPlayerName(n){try{localStorage.setItem("player_name",n);}catch(e){}}
+function dedupeBest(arr){const m=new Map();for(const e of arr){const k=e.name||"?";if(!m.has(k)||e.totalMs<m.get(k).totalMs)m.set(k,e);}return [...m.values()].sort((a,b)=>a.totalMs-b.totalMs);}
+function renderLbList(el,arr,highlight){
+  el.innerHTML="";
+  if(!arr||arr.length===0){el.innerHTML='<div class="lb-empty">まだ記録がありません</div>';return;}
+  dedupeBest(arr).slice(0,15).forEach((e,i)=>{
+    const row=document.createElement("div");
+    row.className="lb-row"+(i===0?" top1":"")+((highlight&&e.name===highlight)?" me":"");
+    row.innerHTML='<span class="rk">'+(i+1)+'</span><span class="nm"></span><span class="tm">'+fmtTime(e.totalMs)+'</span>';
+    row.querySelector(".nm").textContent=e.name||"?";
+    el.appendChild(row);
+  });
+}
+async function openLeaderboard(size){
+  if(!lbEnabled()){toast("ランキングは未設定です");return;}
+  $("lbOverlayNote").textContent=size+"×"+size+" 上位タイム";
+  $("lbOverlayList").innerHTML='<div class="lb-empty">読み込み中…</div>';
+  $("lbOverlay").classList.add("show");
+  try{const arr=await window.LB.top(size);renderLbList($("lbOverlayList"),arr,getPlayerName());}
+  catch(e){$("lbOverlayList").innerHTML='<div class="lb-empty">読み込みに失敗しました</div>';}
+}
+async function refreshResultLb(){
+  if(!lbEnabled())return;
+  $("lbResultList").innerHTML='<div class="lb-empty">読み込み中…</div>';
+  try{const arr=await window.LB.top(taSize);renderLbList($("lbResultList"),arr,getPlayerName());}catch(e){}
+}
+async function submitScore(){
+  if(!lbEnabled())return;
+  const name=(($("lbNameInput").value||"").trim().slice(0,12))||"ぬし";
+  setPlayerName(name);
+  const btn=$("lbRegBtn");btn.disabled=true;btn.textContent="…";
+  const total=taSplits.reduce((a,b)=>a+b,0);
+  try{await window.LB.submit(name,taSize,total);toast("ランキングに登録しました");}
+  catch(e){toast("登録に失敗しました");}
+  btn.disabled=false;btn.textContent="登録";
+  refreshResultLb();
+}
 
 /* ---- イベント ---- */
 $("toMode").addEventListener("click",()=>{document.body.dataset.theme="neutral";show("screen-mode");});
@@ -438,7 +521,52 @@ board.addEventListener("pointercancel",()=>{holding=null;aimCell=null;touchStart
 window.addEventListener("resize",()=>{if($("screen-game").classList.contains("show"))fitBoard();});
 document.addEventListener("touchmove",e=>{if(e.target.closest(".board"))e.preventDefault();},{passive:false});
 
+$("lbViewBtn").addEventListener("click",()=>openLeaderboard(chosenSize));
+$("lbCloseBtn").addEventListener("click",()=>$("lbOverlay").classList.remove("show"));
+$("lbRegBtn").addEventListener("click",submitScore);
+window.addEventListener("lb-ready",()=>{$("lbViewBtn").style.display=lbEnabled()?"":"none";});
+if(lbEnabled())$("lbViewBtn").style.display="";
+
 buildBoard();
+</script>
+
+<script type="module">
+  /* ▼▼▼ Firebase 設定をここに貼り付け（手順は README）。未設定ならランキングは自動でオフ ▼▼▼ */
+  const firebaseConfig = {
+    apiKey: "ここにapiKey",
+    authDomain: "ここにproject.firebaseapp.com",
+    projectId: "ここにprojectId",
+    storageBucket: "ここにproject.appspot.com",
+    messagingSenderId: "ここに",
+    appId: "ここに"
+  };
+  /* ▲▲▲ ここまで ▲▲▲ */
+  const NOT_SET = !firebaseConfig.apiKey || firebaseConfig.apiKey.indexOf("ここに") >= 0;
+  if (NOT_SET) {
+    window.LB = { enabled:false };
+  } else {
+    try {
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+      const { getFirestore, collection, addDoc, getDocs, query, limit, serverTimestamp } =
+        await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      const db = getFirestore(initializeApp(firebaseConfig));
+      window.LB = {
+        enabled: true,
+        async submit(name, size, totalMs) {
+          await addDoc(collection(db, "scores"), { name: String(name).slice(0,12), size: size, totalMs: Math.round(totalMs), ts: serverTimestamp() });
+          return true;
+        },
+        async top(size, n = 200) {
+          const snap = await getDocs(query(collection(db, "scores"), limit(500)));
+          const arr = [];
+          snap.forEach(d => { const v = d.data(); if (v && v.size === size && typeof v.totalMs === "number") arr.push({ name: v.name, totalMs: v.totalMs }); });
+          arr.sort((a,b) => a.totalMs - b.totalMs);
+          return arr.slice(0, n);
+        }
+      };
+    } catch (e) { console.error("Firebase init failed", e); window.LB = { enabled:false }; }
+  }
+  window.dispatchEvent(new Event("lb-ready"));
 </script>
 </body>
 </html>
