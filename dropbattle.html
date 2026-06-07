@@ -384,7 +384,7 @@ function DropBattle() {
     setEHP_(v);
   };
   const [turn, setTurn] = useState(1);
-  const [status, setStatus] = useState("playing"); // playing | reward | clear | lose
+  const [status, setStatus] = useState("title"); // title | playing | reward | clear | lose
   const [log, setLog] = useState(["― 1階 バトル開始 ―"]);
   const [fx, setFx] = useState([]); // ターン演出 [{text,color}]
   const [rewards, setRewards] = useState([]); // 3択
@@ -687,7 +687,7 @@ function DropBattle() {
     lockedRef.current = true;
     setTimeout(() => resolveTurn(), 150);
   };
-  const restart = () => {
+  const restart = (toTitle = false) => {
     UID = 1;
     ownedRef.current = initOwned();
     bagRef.current = refillBag(ownedRef.current);
@@ -707,9 +707,9 @@ function DropBattle() {
     setLocked(false);
     lockedRef.current = false;
     setTurn(1);
-    setStatus("playing");
-    statusRef.current = "playing";
-    setLog(["― 1階 バトル開始 ―"]);
+    setStatus(toTitle ? "title" : "playing");
+    statusRef.current = toTitle ? "title" : "playing";
+    setLog(toTitle ? [] : ["― 1階 バトル開始 ―"]);
     setFx([]);
     turnRef.current = {
       atk: 0,
@@ -737,6 +737,86 @@ function DropBattle() {
   const bagRemain = bagView;
   const bagLeft = ITEM_KEYS.reduce((s, k) => s + bagRemain[k], 0);
   const ownedTotal = ITEM_KEYS.reduce((s, k) => s + ownedView[k], 0);
+
+  // ── タイトル画面 ──────────────────────────────────────────
+  if (status === "title") {
+    return React.createElement("div", {
+      style: {
+        fontFamily: "'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic',sans-serif",
+        minHeight: "100vh",
+        background: "radial-gradient(circle at 50% 0%, #2a1633 0%, #140d1f 55%, #0a0710 100%)",
+        color: "#f4eef9",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "clamp(16px,5vw,32px) 20px",
+        textAlign: "center",
+        WebkitUserSelect: "none",
+        userSelect: "none"
+      }
+    },
+      React.createElement("style", null, "@keyframes titleGlow{0%,100%{text-shadow:0 0 24px #a96bff,0 0 8px #bf8cff}50%{text-shadow:0 0 48px #bf8cff,0 0 20px #a96bff,0 0 70px #6b2fc9}}"),
+      React.createElement("p", {
+        style: { fontSize: "clamp(0.65rem,2vw,0.8rem)", color: "#bf8cff", letterSpacing: "0.22em", marginBottom: 8, opacity: 0.75 }
+      }, "PUZZLE BATTLE"),
+      React.createElement("h1", {
+        style: {
+          fontSize: "clamp(2rem,9vw,3.2rem)",
+          fontWeight: 900,
+          letterSpacing: "0.06em",
+          animation: "titleGlow 2.5s ease-in-out infinite",
+          color: "#e8d5ff",
+          margin: "0 0 6px",
+          lineHeight: 1.1
+        }
+      }, "ドロップバトル"),
+      React.createElement("p", {
+        style: { fontSize: "clamp(0.78rem,2.2vw,0.88rem)", color: "#ffcf5d", marginBottom: 28, opacity: 0.9 }
+      }, "6×6のドロップを消して10階のボスを倒せ！"),
+      React.createElement("div", {
+        style: {
+          background: "rgba(255,255,255,.06)",
+          border: "1px solid rgba(169,107,255,.3)",
+          borderRadius: 16,
+          padding: "clamp(12px,3vw,18px) clamp(14px,4vw,22px)",
+          maxWidth: 340,
+          width: "100%",
+          marginBottom: 28,
+          textAlign: "left",
+          fontSize: "clamp(0.74rem,2vw,0.82rem)",
+          lineHeight: 1.9
+        }
+      },
+        React.createElement("p", {
+          style: { fontWeight: 700, color: "#bf8cff", marginBottom: 8, fontSize: "clamp(0.8rem,2.2vw,0.9rem)" }
+        }, "🎮 遊び方"),
+        React.createElement("p", { style: { margin: "0 0 2px" } }, "① アクション（⚔攻撃 / 🛡防御 / ✚回復）を選ぶ"),
+        React.createElement("p", { style: { margin: "0 0 2px" } }, "② 同じ色のドロップをタップして消す"),
+        React.createElement("p", { style: { margin: "0 0 2px" } }, "③ 3回消したら敵のターン"),
+        React.createElement("p", {
+          style: { marginTop: 10, color: "#ffcf5d", fontSize: "clamp(0.7rem,1.8vw,0.78rem)" }
+        }, "★ 特殊ドロップをうまく使って強敵を倒そう！")
+      ),
+      React.createElement("button", {
+        onClick: () => { setStatus("playing"); statusRef.current = "playing"; },
+        style: {
+          background: "linear-gradient(180deg,#bf8cff,#6b2fc9)",
+          color: "#fff",
+          border: "none",
+          borderRadius: 50,
+          padding: "clamp(12px,3vw,15px) clamp(40px,10vw,56px)",
+          fontSize: "clamp(0.95rem,2.8vw,1.1rem)",
+          fontWeight: 900,
+          letterSpacing: "0.06em",
+          boxShadow: "0 5px 0 #4a1f8c,0 0 22px rgba(169,107,255,.45)",
+          cursor: "pointer",
+          fontFamily: "inherit"
+        }
+      }, "はじめる")
+    );
+  }
+
   return /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic',sans-serif",
@@ -1204,7 +1284,12 @@ function DropBattle() {
       color: "#fff",
       boxShadow: "0 3px 0 #4a1f8c"
     }
-  }, "\u3082\u3046\u4E00\u5EA6")))));
+  }, "\u3082\u3046\u4E00\u5EA6"),
+      /*#__PURE__*/React.createElement("button", {
+        onClick: () => restart(true),
+        className: "rounded-xl px-6 py-2.5 tracking-widest font-bold",
+        style: { background: "rgba(255,255,255,.1)", color: "#c9b8e8", border: "1px solid rgba(169,107,255,.4)", marginTop: 8 }
+      }, "\u30BF\u30A4\u30C8\u30EB\u3078"))))));
 }
 function Bar({
   value,
