@@ -349,11 +349,6 @@ window.PORTFOLIO_DATA = {
             title: "ドロップバトル",
             overview: "6×6マスのドロップを消してダメージを与え、10階のボスを順に倒していくバトルパズル。",
             aim: "「消す→攻撃→次のターンを読む」というコアループが飽きずに続けられるか、パズルとバトルの融合の手触りを検証。"
-          },
-          {
-            title: "アイボウ",
-            overview: "白と黒の2キャラクターを交互に操作し、それぞれのゴールへ導くスライドパズル。動かしていない方が壁になる。",
-            aim: "「2体が協力する」というコアメカニクスが1〜2手で直感的に理解できるか、ギミック追加で飽きずに拡張できるかを検証。"
           }
         ],
         right: {
@@ -361,8 +356,7 @@ window.PORTFOLIO_DATA = {
           tabs: [
             { label: "ナンバーマージ",  src: "number_merge_puzzle.html?v=2" },
             { label: "I Can Shot",     src: "i_can_shot_11.html?v=2" },
-            { label: "ドロップバトル", src: "dropbattle.html?v=2" },
-            { label: "アイボウ",       src: "aibou4.html?v=1"    }
+            { label: "ドロップバトル", src: "dropbattle.html?v=2" }
           ]
         }
       }
