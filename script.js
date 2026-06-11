@@ -576,57 +576,6 @@ document.querySelectorAll(".btn").forEach((btn) => {
 });
 
 // =============================================
-// Modal
-// =============================================
-const modal = document.getElementById("modal");
-const mTitle = document.getElementById("mTitle");
-const mTag = document.getElementById("mTag");
-const mBody = document.getElementById("mBody");
-
-const DETAILS = {
-  xv2: {
-    tag: "商業 / バトルAI",
-    title: "ドラゴンボール ゼノバース2",
-    body: `
-      <p><b>担当：</b>バトルAI（DLC/新モード含む）を中心に、仕様提案 → 実装 → 調整 → デバッグ支援まで担当。</p>
-      <p><b>設計方針：</b>"追加に強い構造"を優先。状態/行動の共通化と、調整パラメータ設計で調整速度を上げる。</p>
-      <p><b>チーム貢献：</b>調整・QAの会話コストを下げるため、挙動の可視化/再現性の担保を意識。</p>
-      <h4>主なアプローチ</h4>
-      <ul>
-        <li>キャラ固有AI＋共通ベースの二層構造で、DLC追加時も最小工数で対応</li>
-        <li>難易度ごとの行動重み付けをデータドリブンにし、調整をデザイナー側で完結可能に</li>
-        <li>デバッグ用にAI状態のリアルタイム可視化ツールを用意し、QAとの連携を効率化</li>
-      </ul>
-    `,
-  },
-};
-
-document.querySelectorAll("[data-open]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const d = DETAILS[btn.dataset.open];
-    if (!d || !modal || !mTitle || !mTag || !mBody) return;
-    mTag.textContent = d.tag;
-    mTitle.textContent = d.title;
-    mBody.innerHTML = d.body;
-    modal.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-  });
-});
-
-function closeModal() {
-  if (!modal) return;
-  modal.setAttribute("aria-hidden", "true");
-  document.body.style.overflow = "";
-}
-modal?.addEventListener("click", (e) => {
-  if (e.target.matches("[data-close]")) closeModal();
-});
-window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && modal?.getAttribute("aria-hidden") === "false")
-    closeModal();
-});
-
-// =============================================
 // Proto-tabs switching
 // =============================================
 document.addEventListener("click", (e) => {
