@@ -1534,6 +1534,27 @@ a.tl-image { display: block; cursor: pointer; }
 }
 /* tag-row は押せないのでホバー演出なし */
 
+/* ---- 好きなゲーム ---- */
+.about-card--fav { grid-column: 1 / -1; }
+.fav-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+}
+.fav-list li {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 5px 12px;
+  background: var(--p-cream);
+  color: var(--p-ink);
+  border: 2px solid var(--p-black);
+  box-shadow: 3px 3px 0 var(--p-black);
+}
+
 /* ============ CONTACT ============ */
 .contact {
   background: var(--p-cream);
