@@ -124,7 +124,7 @@ window.PORTFOLIO_DATA = {
         badge: "03",
         title: "FUTURE SAGA Chapter 2",
         tags:  [{ kind: "ai", text: "バトルAI" }, { kind: "balance", text: "調整" }, { kind: "plan", text: "企画" }, { kind: "fix", text: "不具合対応" }],
-        items: ["追加キャラクター・クエスト用バトルAI作成", "報酬設計", "追加キャラクターのバランス調整（継続）", "クエストの調整・不具合対応（継続）"],
+        items: ["クエスト用バトルAI作成（継続）", "報酬設計", "追加キャラクターのバランス調整（継続）", "クエストの調整・不具合対応（継続）"],
         image: "FYTYRESAGAChapter2.jpg",
         imageAlt: "FUTURE SAGA Chapter 2",
         link: { text: "公式サイト", href: "https://dbx.bn-ent.net/dlc/dlc_futuresaga02.php" }
