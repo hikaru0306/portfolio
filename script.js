@@ -244,7 +244,9 @@ function renderWorks() {
       </div>
     </div>
 
-    <h3 class="sub-heading fade-in">${esc(w.paidHeading || "")}</h3>
+    ${challenges}
+
+    <h3 class="sub-heading fade-in" style="margin-top:48px;">${esc(w.paidHeading || "")}</h3>
     <div class="timeline">${paid}</div>
 
     <h3 class="sub-heading fade-in" style="margin-top:48px;">${esc(w.freeHeading || "")}</h3>
@@ -254,8 +256,6 @@ function renderWorks() {
     ${growth}
 
     ${focus}
-
-    ${challenges}
   `);
 }
 
@@ -428,6 +428,12 @@ function renderAbout() {
   const intro = (Array.isArray(a.intro) ? a.intro : [a.intro || ""]).map(esc).join("<br>");
   const dl = (a.dl || []).map(d => `<div><dt>${esc(d.dt)}</dt><dd>${esc(d.dd)}</dd></div>`).join("");
   const tags = (a.plays && a.plays.tags ? a.plays.tags : []).map(t => `<span>${esc(t)}</span>`).join("");
+  const fav = a.plays && a.plays.favorites;
+  const favCard = fav && (fav.items || []).length ? `
+      <div class="about-card about-card--fav fade-in">
+        <h3>${esc(fav.heading || "好きなゲーム")}</h3>
+        <ul class="fav-list">${fav.items.map(t => `<li>${esc(t)}</li>`).join("")}</ul>
+      </div>` : "";
 
   setHTML("aboutWrap", `
     <h2 class="sect__title fade-in">${esc(a.sectionTitle || "")}</h2>
@@ -441,6 +447,7 @@ function renderAbout() {
         <p class="secondary">${esc(a.plays ? a.plays.text : "")}</p>
         <div class="tag-row">${tags}</div>
       </div>
+      ${favCard}
     </div>
   `);
 }
