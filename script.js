@@ -37,6 +37,18 @@ function renderShell() {
     if (splashTextEl) {
       splashTextEl.textContent = t;
       splashTextEl.setAttribute("data-text", t);
+      // FOUT対策: 見出しフォント(Oswald)が使えるまで文字を隠し、
+      // フォールバックからのサイズ/字形の切り替わり(チラつき)を防ぐ
+      const revealSplash = () => splashTextEl.classList.add("is-ready");
+      if (document.fonts && document.fonts.load) {
+        splashTextEl.classList.add("font-pending");
+        Promise.race([
+          document.fonts.load('700 110px "Oswald"').then(() => document.fonts.ready),
+          new Promise(res => setTimeout(res, 1500)) // 保険: 遅くても1.5秒で表示
+        ]).then(revealSplash);
+      } else {
+        revealSplash();
+      }
     }
     setHTML("splashSub", raw(D.splash.sub));
   }
@@ -60,6 +72,36 @@ function renderHero() {
     ${h.name ? `<p class="hero__name fade-in">${raw(h.name)}</p>` : ""}
     <p class="hero__sub fade-in">${subLines}</p>
     <div class="hero__actions fade-in">${actions}</div>
+  `);
+}
+
+/* ============ 2.5 経歴 ============ */
+function renderCareer() {
+  if (!D.career) return;
+  const c = D.career;
+  const jobs = (c.jobs || []).map(j => {
+    const tags = (j.tags || []).map(t => `<span class="cr-tag">${esc(t)}</span>`).join("");
+    const link = j.link
+      ? `<a class="cr-link" href="${esc(j.link.href)}">${esc(j.link.text)} →</a>`
+      : "";
+    return `
+      <div class="cr-item fade-in">
+        <div class="cr-rail"><span class="cr-dot"></span></div>
+        <div class="cr-body">
+          <span class="cr-period">${esc(j.period)}</span>
+          <h3 class="cr-company">${esc(j.company)}</h3>
+          ${j.role ? `<p class="cr-role">${esc(j.role)}</p>` : ""}
+          ${j.summary ? `<p class="cr-summary">${esc(j.summary)}</p>` : ""}
+          ${tags ? `<div class="cr-tags">${tags}</div>` : ""}
+          ${link}
+        </div>
+      </div>`;
+  }).join("");
+
+  setHTML("careerWrap", `
+    <h2 class="sect__title fade-in">${esc(c.sectionTitle || "経歴")}</h2>
+    ${c.intro ? `<p class="timeline-note fade-in">${esc(c.intro)}</p>` : ""}
+    <div class="career">${jobs}</div>
   `);
 }
 
@@ -116,12 +158,19 @@ function renderWorks() {
 
   const desc = (Array.isArray(f.desc) ? f.desc : [f.desc || ""]).map(esc).join("<br>");
 
-  const overview = f.overview
-    ? `<div class="feature-card__overview">
-         <h4 class="feature-card__overview-title">ゲーム概要</h4>
-         <p class="feature-card__overview-text">${(Array.isArray(f.overview) ? f.overview : [f.overview]).map(esc).join("<br>")}</p>
-       </div>`
-    : "";
+  const overviewText = (Array.isArray(f.overview) ? f.overview : [f.overview || ""]).map(esc).join("<br>");
+  const infoRows = `
+    <div class="feature-card__rows">
+      ${f.overview ? `
+      <div class="challenge-row challenge-row--overview">
+        <span class="challenge-row__label">概要</span>
+        <p class="challenge-row__text">${overviewText}</p>
+      </div>` : ""}
+      <div class="challenge-row challenge-row--role">
+        <span class="challenge-row__label">担当</span>
+        <p class="challenge-row__text">${desc}</p>
+      </div>
+    </div>`;
 
   const focus = f.focus
     ? `<div class="feature-card__focus">
@@ -139,6 +188,29 @@ function renderWorks() {
   const officialLink = f.officialLink
     ? ` <a class="official-link" href="${esc(f.officialLink.href)}" target="_blank" rel="noreferrer">${esc(f.officialLink.text)} ↗</a>`
     : "";
+
+  const challenges = w.challenges ? `
+    <div class="challenges fade-in">
+      <h3 class="sub-heading">${esc(w.challenges.title || "直面した課題と取り組み")}</h3>
+      <div class="challenge-list">
+        ${(w.challenges.items || []).map(c => `
+          <article class="challenge-card">
+            ${c.tag ? `<span class="challenge-card__tag">${esc(c.tag)}</span>` : ""}
+            <div class="challenge-row challenge-row--problem">
+              <span class="challenge-row__label">課題</span>
+              <p class="challenge-row__text">${esc(c.problem)}</p>
+            </div>
+            <div class="challenge-row challenge-row--action">
+              <span class="challenge-row__label">対処</span>
+              <p class="challenge-row__text">${esc(c.action)}</p>
+            </div>
+            <div class="challenge-row challenge-row--result">
+              <span class="challenge-row__label">成果</span>
+              <p class="challenge-row__text">${esc(c.result)}</p>
+            </div>
+          </article>`).join("")}
+      </div>
+    </div>` : "";
 
   const paid = (w.paidDLC || []).map(renderTimelineItem).join("");
   const free = (w.freeUpdates || []).map(renderTimelineItem).join("");
@@ -167,8 +239,7 @@ function renderWorks() {
       <div class="feature-card__info">
         <span class="tag">${esc(f.tag || "")}</span>
         <h3 class="feature-card__title">${esc(f.title || "")}${officialLink}</h3>
-        ${overview}
-        <p class="feature-card__desc">${desc}</p>
+        ${infoRows}
         <div class="strengths">${strengths}</div>
       </div>
     </div>
@@ -183,6 +254,8 @@ function renderWorks() {
     ${growth}
 
     ${focus}
+
+    ${challenges}
   `);
 }
 
@@ -247,8 +320,12 @@ function renderProjectRight(r) {
       ).join("");
       return `
         <div class="proto-tabs">
+          <div class="proto-playable-bar">
+            <span class="proto-playable-badge"><span class="proto-playable-dot"></span>この画面でそのまま遊べます</span>
+          </div>
           <div class="proto-tab-btns">${btns}</div>
           <div class="proto-frames">${frames}</div>
+          <p class="proto-play-hint">↑ 画面を直接クリック／タップして操作できます・タブで作品を切り替え</p>
         </div>`;
     }
     default:
@@ -270,6 +347,13 @@ function renderProjectCard(p) {
       <h4>${esc(m.heading)}</h4>
       <ul>${(m.items || []).map(it => `<li>${esc(it)}</li>`).join("")}</ul>
     </div>`).join("");
+
+  const awardChip = p.award
+    ? `<span class="award-chip" title="${esc(p.award.title || "")}">
+         <img class="award-chip__mark" src="${esc(p.award.image)}" alt="${esc(p.award.title || "受賞マーク")}" loading="lazy" />
+         <span class="award-chip__text">${esc(p.award.short || p.award.title || "")}</span>
+       </span>`
+    : "";
 
   const titleBlock = p.icon
     ? `<div class="project__title-row">
@@ -298,7 +382,7 @@ function renderProjectCard(p) {
   return `
     <article class="project fade-in${noRightCls}">
       <div class="project__left">
-        <div class="tag-pair">${tagPair}</div>
+        <div class="tag-pair">${tagPair}${awardChip}</div>
         ${titleBlock}
         <p class="project__catch">${esc(p.catch || "")}${link}</p>
         <div class="project__meta">${meta}</div>
@@ -383,6 +467,7 @@ function renderContact() {
 /* ============ 描画実行 ============ */
 renderShell();
 renderHero();
+renderCareer();
 renderWorks();
 renderProjectsSection("personalWrap", D.personal);
 renderProjectsSection("studentWrap", D.student);
@@ -408,6 +493,16 @@ if (splash) {
   window.addEventListener("keydown", removeSplash, { once: true });
   splash.addEventListener("click", removeSplash);
 }
+
+// =============================================
+// Logo → scroll to top
+// =============================================
+const logoLink = document.getElementById("logo");
+logoLink?.addEventListener("click", (e) => {
+  e.preventDefault();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  history.replaceState(null, "", location.pathname + location.search);
+});
 
 // =============================================
 // Year
@@ -463,6 +558,7 @@ function assignStagger() {
     ".contact__row",
     ".timeline",
     ".projects",
+    ".career",
   ];
   groups.forEach((sel) => {
     document.querySelectorAll(sel).forEach((parent) => {

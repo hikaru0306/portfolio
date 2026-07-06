@@ -11,6 +11,7 @@ window.PORTFOLIO_DATA = {
 
   // ナビゲーション
   nav: [
+    { href: "#career",   text: "経歴" },
     { href: "#works",    text: "実績" },
     { href: "#personal", text: "自主制作" },
     { href: "#student",  text: "学生作品" },
@@ -41,6 +42,29 @@ window.PORTFOLIO_DATA = {
     ]
   },
 
+  // 経歴
+  career: {
+    sectionTitle: "経歴",
+    jobs: [
+      {
+        period: "2022.04 — 2025.04",
+        company: "株式会社ディンプス",
+        role: "ゲームプランナー",
+        summary: "「ドラゴンボール ゼノバース2」の運営開発に従事。バトルAIを起点に、新要素の提案/開発・スクリプト・バランス調整・KPI分析・マルチプラットフォーム対応などを担当。",
+        tags: ["バトルAI", "企画", "バランス調整", "KPI分析"],
+        link: { text: "担当した実績を見る", href: "#works" }
+      },
+      {
+        period: "2025.05 — 現在",
+        company: "自主制作",
+        role: "ゲームデザイナー / ディレクター",
+        summary: "友人とチームを組んでのゲーム制作を中心に活動。ディレクターを担当し、App Store へのリリースやプロトタイピングによる検証を継続している。",
+        tags: ["企画", "実装", "アプリリリース"],
+        link: { text: "自主制作を見る", href: "#personal" }
+      }
+    ]
+  },
+
   // 仕事の実績
   works: {
     sectionTitle: "仕事の実績",
@@ -49,40 +73,40 @@ window.PORTFOLIO_DATA = {
       title: "ドラゴンボール ゼノバース2",
       sub: "バトルAI / イベント設計 / バランス調整 / KPI分析",
       officialLink: { text: "公式サイト", href: "https://dbx.bn-ent.net/about/about.php" },
+      overview: [
+        "『ドラゴンボール』の世界を追体験・改変できる対戦アクションゲーム。発売から長期運営が続く人気タイトルで、現在も有料DLCと無料アップデートによって新キャラクター・新イベントの追加が続いている。"
+      ],
       desc: [
-        "バトルAIを軸に、仕様提案・実装・調整・ツール設計・デバッグ管理を担当。",
-        "有料DLCと無料アップデートを通じて、AI設計から報酬設計・KPI分析・マルチプラットフォーム対応まで担当領域を拡大。"
+        "バトルAI担当として、追加キャラクターやレイドボスのAI設計・実装をPJ内で1人で担当。",
+        "その後、新規イベントの企画・報酬設計・KPI分析・バランス調整・ツール改善まで担当領域を拡大。"
       ],
       image:    "xv2-key.jpg",
       imageAlt: "ドラゴンボール ゼノバース2",
-      focus: {
-        title: "意識したこと / こだわったこと",
-        groups: [
-          {
-            heading: "AI担当として",
-            items: [
-              "キャラクターの動きに違和感が生まれないこと",
-              "プレイヤーがAIとの対戦から気づきを得られること",
-              "実際のPvPのような読み合いを成立させること"
-            ]
-          },
-          {
-            heading: "制作環境の改善",
-            items: [
-              "AIツールの作成やクエストツールの拡張など、開発フロー自体の改善に積極的に取り組んだ",
-              "実装速度を2〜3倍まで引き上げ、チーム全体の作業効率向上に貢献した"
-            ]
-          }
-        ]
-      },
+    },
+    challenges: {
+      title: "直面した課題と取り組み",
+      items: [
+        {
+          tag: "バトルAI改善",
+          problem: "私がバトルAIを担当する以前は、PvE が単調で作業感が強いという課題があった。COM 戦の難易度上昇がステータスやアーマー（攻撃で怯まない）に依存しており、キャラクターごとの個性も薄く、“読み合い”が成立していなかった。",
+          action: "状況判断やコンボパターンの予測を行うフラグ管理を実装し、バトルAIツール自体も改善。読み合いが生まれ、キャラクターごとの特徴が出る動きを実現すると同時に、バトルAIの開発スピードも効率化した。",
+          result: "告知のない大型アップデート内でのバトルAI改善だったが、ユーザーから「今回のアップデートで AI が一番良くなった」という評価を得ることができた。"
+        },
+        {
+          tag: "クエスト開発フローの改善",
+          problem: "クエストに不具合が発生した際の対処や、新規システムの実装に時間がかかっていた。",
+          action: "クエストの基盤となるベースを作成し、担当者ごとの実装差をできるだけ減らす統一化を実施。素案段階からエンジニアとこまめに話し合い、認識をすり合わせる体制を整えた。",
+          result: "クエストの実装から不具合対処までの作業効率が 2〜3 倍に向上し、少人数でも対応できる体制になった。"
+        }
+      ]
     },
     paidHeading: "有料DLC",
     paidDLC: [
       {
         badge: "01",
         title: "正義のヒーロー編パック 第2弾",
-        tags:  [{ kind: "ai", text: "AI" }, { kind: "balance", text: "調整" }],
-        items: ["追加キャラクターのバランス調整", "クエスト用AI作成"],
+        tags:  [{ kind: "ai", text: "バトルAI" }, { kind: "balance", text: "調整" }],
+        items: ["クエスト用バトルAI作成", "追加キャラクターのバランス調整"],
         image: "正義のヒーロー編パック2.jpg",
         imageAlt: "正義のヒーロー編パック 第2弾",
         link: { text: "公式サイト", href: "https://dbx.bn-ent.net/dlc/dlc_hero02.php" }
@@ -90,8 +114,8 @@ window.PORTFOLIO_DATA = {
       {
         badge: "02",
         title: "FUTURE SAGA Chapter 1",
-        tags:  [{ kind: "ai", text: "AI" }, { kind: "balance", text: "調整" }, { kind: "fix", text: "不具合対応" }],
-        items: ["クエスト用AI作成", "追加キャラクターのバランス調整", "クエストの調整・不具合対応"],
+        tags:  [{ kind: "ai", text: "バトルAI" }, { kind: "balance", text: "調整" }, { kind: "fix", text: "不具合対応" }],
+        items: ["クエスト用バトルAI作成", "追加キャラクターのバランス調整", "クエストの調整・不具合対応"],
         image: "FYTYRESAGAChapter1.jpg",
         imageAlt: "FUTURE SAGA Chapter 1",
         link: { text: "公式サイト", href: "https://dbx.bn-ent.net/dlc/dlc_futuresaga01.php" }
@@ -99,8 +123,8 @@ window.PORTFOLIO_DATA = {
       {
         badge: "03",
         title: "FUTURE SAGA Chapter 2",
-        tags:  [{ kind: "ai", text: "AI" }, { kind: "balance", text: "調整" }, { kind: "plan", text: "企画" }, { kind: "fix", text: "不具合対応" }],
-        items: ["追加キャラクター・クエスト用AI作成", "追加キャラクターのバランス調整", "報酬設計", "クエストの調整・不具合対応"],
+        tags:  [{ kind: "ai", text: "バトルAI" }, { kind: "balance", text: "調整" }, { kind: "plan", text: "企画" }, { kind: "fix", text: "不具合対応" }],
+        items: ["追加キャラクター・クエスト用バトルAI作成", "報酬設計", "追加キャラクターのバランス調整", "クエストの調整・不具合対応"],
         image: "FYTYRESAGAChapter2.jpg",
         imageAlt: "FUTURE SAGA Chapter 2",
         link: { text: "公式サイト", href: "https://dbx.bn-ent.net/dlc/dlc_futuresaga02.php" }
@@ -116,23 +140,23 @@ window.PORTFOLIO_DATA = {
       }
     ],
     freeHeading: "無料アップデート",
-    freeNote: "AI専任から企画・分析・移植まで、担当範囲が段階的に広がっていきました。",
+    freeNote: "バトルAI専任から企画・分析・移植まで、担当範囲が段階的に広がっていきました。",
     freeUpdates: [
       {
         badge: "01",
         title: "無料アップデート 第16弾",
-        tags:  [{ kind: "ai", text: "AI" }],
-        items: ["大型レイド（セルマックス）のAI作成", "挙動パターンの設計"],
+        tags:  [{ kind: "ai", text: "バトルAI" }],
+        items: ["大型レイド（セルマックス）のバトルAI作成", "挙動パターンの設計"],
         link: { text: "公式サイト", href: "https://dbx.bn-ent.net/dlc/update.php#updateVol16" }
       },
       {
         badge: "02",
         title: "無料アップデート 第17弾",
-        tags:  [{ kind: "ai", text: "AI" }, { kind: "dev", text: "実装" }, { kind: "fix", text: "不具合対応" }],
+        tags:  [{ kind: "ai", text: "バトルAI" }, { kind: "dev", text: "実装" }, { kind: "fix", text: "不具合対応" }],
         items: [
-          "オンラインイベント（宇宙一武道祭）キャラクター専用AI作成",
-          "レイド（孫悟飯ビースト、ピッコロ）のAI作成",
-          "クロスバーサスの基盤作成 / スクリプト対応 / AI作成",
+          "オンラインイベント（宇宙一武道祭）キャラクター専用バトルAI作成",
+          "レイド（孫悟飯ビースト、ピッコロ）のバトルAI作成",
+          "クロスバーサスの基盤作成 / スクリプト対応 / バトルAI作成",
           "クエストスクリプトの不具合対応"
         ],
         link: { text: "公式サイト", href: "https://dbx.bn-ent.net/dlc/update.php#updateVol17" }
@@ -140,9 +164,9 @@ window.PORTFOLIO_DATA = {
       {
         badge: "03",
         title: "無料アップデート 第18弾",
-        tags:  [{ kind: "ai", text: "AI" }, { kind: "dev", text: "実装" }, { kind: "balance", text: "調整" }, { kind: "fix", text: "不具合対応" }],
+        tags:  [{ kind: "ai", text: "バトルAI" }, { kind: "dev", text: "実装" }, { kind: "balance", text: "調整" }, { kind: "fix", text: "不具合対応" }],
         items: [
-          "オンラインイベント（宇宙一武道祭）キャラクター専用AI作成",
+          "オンラインイベント（宇宙一武道祭）キャラクター専用バトルAI作成",
           "サーバー関連のロビースクリプト対応",
           "追加技のバランス調整",
           "チュートリアル作成",
@@ -153,15 +177,15 @@ window.PORTFOLIO_DATA = {
       {
         badge: "04",
         title: "無料アップデート 第19弾",
-        tags:  [{ kind: "ai", text: "AI" }, { kind: "plan", text: "企画" }, { kind: "data", text: "KPI" }, { kind: "balance", text: "調整" }, { kind: "port", text: "移植" }],
+        tags:  [{ kind: "ai", text: "バトルAI" }, { kind: "plan", text: "企画" }, { kind: "data", text: "KPI" }, { kind: "balance", text: "調整" }, { kind: "port", text: "移植" }],
         items: [
+          "オンラインイベント（宇宙一武道祭）キャラクター専用バトルAI作成",
           "報酬設計",
           "KPI関連の資料作成",
-          "オンラインイベント（宇宙一武道祭）キャラクター専用AI作成",
           "オンラインイベント（天下一武道会）のルール設定",
           "追加キャラ / 技のバランス調整",
-          "Xbox Game Passの移植対応",
           "チュートリアル作成",
+          "Xbox Game Passの移植対応",
           "クエストスクリプトの不具合対応"
         ],
         link: { text: "公式サイト", href: "https://dbx.bn-ent.net/dlc/update.php#updateVol19" }
@@ -169,11 +193,11 @@ window.PORTFOLIO_DATA = {
       {
         badge: "05",
         title: "無料アップデート 第20弾",
-        tags:  [{ kind: "ai", text: "AI" }, { kind: "plan", text: "企画" }, { kind: "data", text: "KPI" }, { kind: "fix", text: "不具合対応" }],
+        tags:  [{ kind: "ai", text: "バトルAI" }, { kind: "plan", text: "企画" }, { kind: "data", text: "KPI" }, { kind: "fix", text: "不具合対応" }],
         items: [
+          "オンラインイベント（宇宙一武道祭）キャラクター専用バトルAI作成",
           "報酬設計",
           "KPI関連の資料作成",
-          "オンラインイベント（宇宙一武道祭）キャラクター専用AI作成",
           "オンラインイベント（天下一武道会）のルール設定",
           "チュートリアル作成",
           "Xbox Game Passの不具合対応"
@@ -184,9 +208,9 @@ window.PORTFOLIO_DATA = {
     growth: {
       title: "担当領域の広がり",
       steps: [
-        { label: "初期", width: 20,  items: ["AI"] },
-        { label: "中期", width: 55,  items: ["AI", "実装", "調整"] },
-        { label: "後期", width: 100, items: ["AI", "企画", "KPI", "調整", "移植", "基盤設計"] }
+        { label: "初期", width: 20,  items: ["バトルAI"] },
+        { label: "中期", width: 55,  items: ["バトルAI", "実装", "調整"] },
+        { label: "後期", width: 100, items: ["バトルAI", "企画", "KPI", "調整", "移植", "基盤設計"] }
       ]
     }
   },
@@ -201,16 +225,16 @@ window.PORTFOLIO_DATA = {
         tags: [
           { class: "tag tag--green",          text: "アプリ" },
           { class: "tag tag--role tag--team", text: "チーム" },
-          { class: "tag tag--time",           text: "10ヶ月" }
+          { class: "tag tag--time",           text: "11ヶ月" }
         ],
-        catch: "東大生vs小学生でも競える早押しクイズゲーム！",
+        catch: "直感勝負の早押しクイズゲーム！",
         link:  { text: "App Store", href: "https://apps.apple.com/jp/app/%E3%82%82%E3%81%98%E3%81%AA%E3%82%93-%E3%81%93%E3%81%AE%E3%82%82%E3%81%98%E3%81%AA%E3%82%93%E3%81%A7%E3%81%97%E3%82%87%E3%81%86/id6755531894" },
         meta: [
           { heading: "担当", items: [
             "ディレクター",
-            "運営設計（PlayFab）",
+            "運営設計",
             "サブプログラマー",
-            "アート"
+            "アーティスト"
           ]},
           { heading: "見どころ", items: [
             "15種類以上のミニゲーム",
@@ -225,9 +249,9 @@ window.PORTFOLIO_DATA = {
           intent: {
             title: "制作意図と狙い",
             items: [
-              "クイズを説明文ではなく映像で出題することで、知識差を埋めて早押し解答ができる体験を成立させる。",
-              "同じ問題が繰り返し出題されても楽しめる、反射・予測・タイミングの駆け引きを核に設計。",
-              "短い動画フォーマットで「自分も遊んでみたい」と思わせ、ユーザー数の拡大につなげる導線を意識。"
+              "クイズを説明文ではなく映像で出題することで、知識差を埋めて早押し解答ができる体験を意識",
+              "同じ問題が繰り返し出題されても楽しめる、反射・予測・タイミングの駆け引きを核になるよう設計",
+              "短い動画フォーマットで「自分も遊んでみたい」と思わせ、ユーザー数の拡大につなげる導線を意識"
             ]
           }
         }
@@ -240,7 +264,7 @@ window.PORTFOLIO_DATA = {
           { class: "tag tag--role tag--team", text: "チーム" },
           { class: "tag tag--time",           text: "3ヶ月" }
         ],
-        catch: "1タップでタイムとルートを駆け抜けるスピードアクション",
+        catch: "1タップでステージを駆け抜けるスピードアクション",
         link:  { text: "App Store", href: "https://apps.apple.com/jp/app/%E3%82%B9%E3%83%9A%E3%83%BC%E3%82%B9%E3%83%88%E3%83%88/id6743999242" },
         meta: [
           { heading: "担当", items: [
@@ -248,7 +272,7 @@ window.PORTFOLIO_DATA = {
             "サブプログラマー"
           ]},
           { heading: "見どころ", items: [
-            "ステージごとのランキング",
+            "同じルートでもタップ＆ホールドのタイミングによって速度などが変化",
             "ワールドに応じて変化するギミック"
           ]}
         ],
@@ -259,9 +283,9 @@ window.PORTFOLIO_DATA = {
           intent: {
             title: "制作意図と狙い",
             items: [
-              "1タップだけの操作で、タイムとルートを同時に考えられるアクション体験を実現。",
-              "どんなゲームでどんなルールなのかを、初見で直感的に理解できる導線設計。",
-              "同じステージを繰り返し遊びたくなる、リトライ性の高い手触り。"
+              "1タップだけの操作で、速度やルートを考えられるアクション体験を実現",
+              "どんなゲームでどんなルールなのかを、初見で直感的に理解できる導線設計",
+              "同じステージを繰り返し遊びたくなる、リトライ性の高い手触り"
             ]
           }
         }
@@ -279,8 +303,8 @@ window.PORTFOLIO_DATA = {
         meta: [
           { heading: "担当",     items: ["ディレクター"] },
           { heading: "見どころ", items: [
-            "1タップで遊べる手軽な操作感",
-            "タイミング次第で時間が伸び続けるスコアアタック設計",
+            "タップのみで遊べる手軽な操作感",
+            "累計報酬を出すことで、少ないスコアの時にも価値がある",
             "短時間で気軽に挑戦できるテンポ"
           ]}
         ],
@@ -290,8 +314,8 @@ window.PORTFOLIO_DATA = {
           intent: {
             title: "制作意図と狙い",
             items: [
-              "初のアプリ開発だったため、確実にリリースまで持っていくことを最優先に置いたスコープ設計。",
-              "「ツムツム」のピグレット（時間追加）を参考に、タップで時間を伸ばし続けるコアループを設計。",
+              "初のアプリ開発だったため、確実にリリースまで持っていくことを最優先に開発",
+              "「ツムツム」のピグレット（時間追加）を参考に、タップで時間を伸ばし続けるコアループを設計",
               "プレイスキルに応じてスコアが青天井に伸びる、上達が直接結果に表れる手触り。"
             ]
           }
@@ -303,7 +327,7 @@ window.PORTFOLIO_DATA = {
           { class: "tag tag--warm",           text: "企画書" },
           { class: "tag tag--role tag--team", text: "個人" }
         ],
-        catch: "エイム操作だけで移動も完結する、初心者にやさしいTPS",
+        catch: "エイム操作だけで移動も完結する、シューティング初心者でも遊びやすいTPS",
         meta: [
           { heading: "ポイント", items: [
             "TPS / FPS の難易度が上がり続けている要素を分析",
@@ -325,30 +349,29 @@ window.PORTFOLIO_DATA = {
         tags: [
           { class: "tag tag--warm",  text: "プロトタイプ" },
           { class: "tag tag--role",  text: "個人" },
-          { class: "tag tag--time",  text: "各1日" }
         ],
-        catch: "企画の「面白さの核」をAIと1日で検証するプロトタイピング",
+        catch: "企画の「面白さの核」を検証するプロトタイプ制作",
         meta: [
           { heading: "制作スタンス", items: [
             "アイデアが面白いかどうかを、仕様書ではなく実際に触れる形で素早く確かめる",
-            "AIを活用して1日でプレイアブルな状態まで作り上げ、検証サイクルを短縮する"
+            "AIなども活用して、より早くプレイアブルな状態まで作り上げ、検証サイクルを短縮する"
           ]}
         ],
         protoDetails: [
           {
             title: "ナンバーマージ",
-            overview: "同じ数字のタイルをマージして高スコアを目指すパズルゲーム。加算・減算など複数のモードを搭載。",
-            aim: "「マージする」というシンプルな操作の中に、どこまで読みと戦略が生まれるかコアループの中毒性を検証。"
+            overview: "数字を移動させると、加算や減算が発生する新しいナンプレ",
+            aim: "ナンプレにデジタルならではの「移動」と「合体」要素を追加し、新しい面白さが出ているかを検証"
           },
           {
             title: "I Can Shot",
-            overview: "エイムした方向に移動と射撃が連動するTPS。マウス操作だけで完結するプロトタイプ。",
-            aim: "「エイム＝移動」という新しい操作感が初見で直感的に理解できるか、気持ちよさが成立するかを検証。企画書と合わせて設計の根拠も整理済み。"
+            overview: "エイムのみで射撃と移動が連動するTPS。マウス操作だけで完結できる簡単操作のTPS",
+            aim: "「エイム」のみの移動でゲームとして成立がするのか、読み合いが発生するのかを検証"
           },
           {
             title: "ドロップバトル",
-            overview: "6×6マスのドロップを消してダメージを与え、10階のボスを順に倒していくバトルパズル。",
-            aim: "「消す→攻撃→次のターンを読む」というコアループが飽きずに続けられるか、パズルとバトルの融合の手触りを検証。"
+            overview: "隣り合っている同色ドロップを消して対戦するローグライクゲーム。",
+            aim: "ローグライクに「パズル」要素を追加することで運と戦略要素の幅が広がっているかの検証"
           }
         ],
         right: {
@@ -375,9 +398,14 @@ window.PORTFOLIO_DATA = {
           { class: "tag tag--time",           text: "3ヶ月" }
         ],
         catch: "流体を操りゴールを目指すパズルアクション",
+        award: {
+          image: "awardmark_amateur.png",
+          title: "日本ゲーム大賞2020 アマチュア部門 佳作",
+          short: "日本ゲーム大賞2020 アマチュア部門 佳作"
+        },
         meta: [
-          { heading: "担当",     items: ["企画 / ルール設計", "レベルデザイン", "実装（Unity）"] },
-          { heading: "見どころ", items: ["ひらめき → 成功 → 爽快の短ループ", "初見で理解できる導線", "リトライが気持ちいいテンポ"] }
+          { heading: "担当",     items: ["ディレクター", "サブプログラマー"] },
+          { heading: "こだわり", items: ["レベルデザインでは様々なルートでクリアができるように設計", "上手く出来たときの爽快感と惜しいときに運でもクリアができるギリギリ感が生まれるゲーム性"] }
         ],
         right: {
           type: "video",
@@ -392,10 +420,10 @@ window.PORTFOLIO_DATA = {
           { class: "tag tag--role tag--team", text: "チーム" },
           { class: "tag tag--time",           text: "3ヶ月" }
         ],
-        catch: "テンポの良い駆け引きが魅力のカジュアルゲーム",
+        catch: "敵の能力を奪う2Dシューティングゲーム！",
         meta: [
-          { heading: "担当",     items: ["企画 / ルール設計", "レベルデザイン", "実装（Unity）"] },
-          { heading: "見どころ", items: ["操作感 / 駆け引き / 発見", "難易度曲線", "気持ちよさのフィードバック"] }
+          { heading: "担当",     items: ["ディレクター","サブプログラマー","サブアーティスト"] },
+          { heading: "こだわり", items: ["奪った能力が強力なほど、奪いたい相手を敵を倒してしまいジレンマ", "上下左右にどんな移動をしても見やすいカメラワークを意識", "通常のステージに加え、パズルステージやスペシャルステージなど、同じアクションで違った体験をできる味変要素とボリューム感"] }
         ],
         right: {
           type: "video",
@@ -431,7 +459,7 @@ window.PORTFOLIO_DATA = {
         bars: [
           { label: "企画立案・コア体験設計",         level: 5 },
           { label: "仕様書・フロー・ドキュメント",   level: 4.5 },
-          { label: "難易度 / 導線 / チュートリアル", level: 4.5 }
+          { label: "難易度調整 / 導線設計 / チュートリアル", level: 4.5 }
         ]
       },
       {
@@ -447,7 +475,7 @@ window.PORTFOLIO_DATA = {
         bars: [
           { label: "資料作成(Office/Google Workspace)",            level: 4.5 },
           { label: "ゲームエンジン(Unity / UE)",   level: 4.5 },
-          { label: "AI(Claude Code / GoogleAI / ChatGPT / StableDiffusion)",         level: 4 }
+          { label: "AI(Claude Code / Cursor / Codex / NotebookLM)",         level: 4 }
         ]
       }
     ]
@@ -461,14 +489,13 @@ window.PORTFOLIO_DATA = {
       "AI / UI / データ分析も含めて、体験の完成度を上げるために横断して動けます。"
     ],
     dl: [
-      { dt: "得意",   dd: "コア体験設計、導線、AI、改善" },
-      { dt: "姿勢",   dd: "自分で触り、人にも触ってもらい、検証サイクルを速く回す" },
-      { dt: "掛け算", dd: "企画 × 実装理解 × 検証スピード" }
+      { dt: "得意",   dd: "レベルデザイン(難易度調整)、ゲームAIの設計、ツールの改善提案" },
+      { dt: "姿勢",   dd: "アイデアを自分で触り、人にも触ってもらい、面白さを検証する" },
     ],
     plays: {
       heading: "プレイ傾向",
-      text: "システム・操作・駆け引きのあるゲームが好き。",
-      tags: ["アクション", "パズル", "カード", "ローグライク", "対戦"]
+      text: "アクション要素や駆け引きのあるゲームが好き。",
+      tags: ["アクション", "パズル", "カード", "ローグライク", "対戦","音楽",]
     }
   },
 
