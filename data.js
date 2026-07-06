@@ -115,7 +115,7 @@ window.PORTFOLIO_DATA = {
         badge: "02",
         title: "FUTURE SAGA Chapter 1",
         tags:  [{ kind: "ai", text: "バトルAI" }, { kind: "balance", text: "調整" }, { kind: "fix", text: "不具合対応" }],
-        items: ["クエスト用バトルAI作成", "追加キャラクターのバランス調整", "クエストの調整・不具合対応"],
+        items: ["クエスト用バトルAI作成（継続）", "追加キャラクターのバランス調整（継続）", "クエストの調整・不具合対応"],
         image: "FYTYRESAGAChapter1.jpg",
         imageAlt: "FUTURE SAGA Chapter 1",
         link: { text: "公式サイト", href: "https://dbx.bn-ent.net/dlc/dlc_futuresaga01.php" }
@@ -124,7 +124,7 @@ window.PORTFOLIO_DATA = {
         badge: "03",
         title: "FUTURE SAGA Chapter 2",
         tags:  [{ kind: "ai", text: "バトルAI" }, { kind: "balance", text: "調整" }, { kind: "plan", text: "企画" }, { kind: "fix", text: "不具合対応" }],
-        items: ["追加キャラクター・クエスト用バトルAI作成", "報酬設計", "追加キャラクターのバランス調整", "クエストの調整・不具合対応"],
+        items: ["追加キャラクター・クエスト用バトルAI作成", "報酬設計", "追加キャラクターのバランス調整（継続）", "クエストの調整・不具合対応（継続）"],
         image: "FYTYRESAGAChapter2.jpg",
         imageAlt: "FUTURE SAGA Chapter 2",
         link: { text: "公式サイト", href: "https://dbx.bn-ent.net/dlc/dlc_futuresaga02.php" }
@@ -166,7 +166,7 @@ window.PORTFOLIO_DATA = {
         title: "無料アップデート 第18弾",
         tags:  [{ kind: "ai", text: "バトルAI" }, { kind: "dev", text: "実装" }, { kind: "balance", text: "調整" }, { kind: "fix", text: "不具合対応" }],
         items: [
-          "オンラインイベント（宇宙一武道祭）キャラクター専用バトルAI作成（継続担当）",
+          "オンラインイベント（宇宙一武道祭）キャラクター専用バトルAI作成（継続）",
           "サーバー関連のロビースクリプト対応",
           "追加技のバランス調整",
           "チュートリアル作成",
@@ -179,7 +179,7 @@ window.PORTFOLIO_DATA = {
         title: "無料アップデート 第19弾",
         tags:  [{ kind: "ai", text: "バトルAI" }, { kind: "plan", text: "企画" }, { kind: "data", text: "KPI" }, { kind: "balance", text: "調整" }, { kind: "port", text: "移植" }],
         items: [
-          "オンラインイベント（宇宙一武道祭）キャラクター専用バトルAI作成（継続担当）",
+          "オンラインイベント（宇宙一武道祭）キャラクター専用バトルAI作成（継続）",
           "報酬設計",
           "KPI関連の資料作成",
           "オンラインイベント（天下一武道会）のルール設定",
@@ -195,7 +195,7 @@ window.PORTFOLIO_DATA = {
         title: "無料アップデート 第20弾",
         tags:  [{ kind: "ai", text: "バトルAI" }, { kind: "plan", text: "企画" }, { kind: "data", text: "KPI" }, { kind: "fix", text: "不具合対応" }],
         items: [
-          "オンラインイベント（宇宙一武道祭）キャラクター専用バトルAI作成（継続担当）",
+          "オンラインイベント（宇宙一武道祭）キャラクター専用バトルAI作成（継続）",
           "報酬設計（継続）",
           "KPI関連の資料作成（継続）",
           "オンラインイベント（天下一武道会）のルール設定（継続）",
