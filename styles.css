@@ -2022,9 +2022,15 @@ html.js .is-in .tag-row span {
   flex-direction: column;
   gap: 0;
   /* 縦長画面でも1画面に収まるよう、フレーム高さ(=幅×16/9)を
-     ビューポート高からバー類の分を引いた値以下に制限 */
-  width: min(100%, calc((100vh - 200px) * 9 / 16));
+     ビューポート高からバー類の分を引いた値以下に制限。
+     ただし高さの低いウィンドウで崩壊しないよう幅320pxを下限にする */
+  width: min(100%, max(320px, calc((100vh - 200px) * 9 / 16)));
   margin-inline: auto;
+}
+/* スマホ: アドレスバーの出入りで100vhが変動して幅がかくつくため、
+   vh依存をやめてデバイス幅そのままで表示する */
+@media (max-width: 640px) {
+  .proto-tabs { width: 100%; }
 }
 /* ---- "playable" cue bar ---- */
 .proto-playable-bar {
