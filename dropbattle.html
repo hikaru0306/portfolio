@@ -448,11 +448,22 @@ function DropBattle() {
       }
       const item = items[i];
       setFx(prev => [...prev, item]);
+      if (item.run) item.run(); // 演出表示と同時にHP反映などを実行
       i++;
       fxTimer.current = setTimeout(step, 720);
     };
     step();
   };
+
+  // 被ダメ・回復時のパネル点滅（'player' | 'enemy' | 'heal'）
+  const [hit, setHit] = useState(null);
+  const hitTimer = useRef(null);
+  const flash = who => {
+    if (hitTimer.current) clearTimeout(hitTimer.current);
+    setHit(who);
+    hitTimer.current = setTimeout(() => setHit(null), 500);
+  };
+  // ターン解決：①攻撃でダメージを与える → ②敵の攻撃を受ける → ③回復、の順に演出とHP反映を行う
   const resolveTurn = useCallback(() => {
     const {
       atk,
@@ -464,26 +475,36 @@ function DropBattle() {
     let e = eRef.current;
     if (atk > 0) {
       e = Math.max(0, e - atk);
+      const ne = e;
       seq.push({
         text: `敵に ${atk} ダメージ！`,
-        color: "#ff6b6b"
+        color: "#ff6b6b",
+        act: "atk",
+        run: () => {
+          setEHP(ne);
+          flash("enemy");
+        }
       });
       logs.push(`⚔ 敵に ${atk} ダメージ`);
     }
-    setEHP(e);
-    if (heal > 0) {
-      const before = pRef.current;
-      const np = Math.min(P_MAX, before + heal);
-      if (np - before > 0) {
-        seq.push({
-          text: `${np - before} 回復！`,
-          color: "#5bd98a"
-        });
-        logs.push(`✚ ${np - before} 回復`);
-      }
-      setPHP(np);
-    }
     if (e <= 0) {
+      // 撃破時は敵の攻撃なし。回復だけ反映して勝利
+      if (heal > 0) {
+        const before = pRef.current;
+        const np = Math.min(P_MAX, before + heal);
+        if (np - before > 0) {
+          seq.push({
+            text: `${np - before} 回復！`,
+            color: "#5bd98a",
+            act: "heal",
+            run: () => {
+              setPHP(np);
+              flash("heal");
+            }
+          });
+          logs.push(`✚ ${np - before} 回復`);
+        }
+      }
       logs.push(`🏆 ${FLOORS[floorRef.current].name} を撃破！`);
       addLog(logs);
       playFx(seq, () => onDefeatRef.current());
@@ -491,13 +512,33 @@ function DropBattle() {
     }
     const enemyAtk = FLOORS[floorRef.current].atk;
     const incoming = Math.max(0, enemyAtk - def);
+    const pHit = Math.max(0, pRef.current - incoming);
     seq.push({
       text: `敵の攻撃 ${incoming} ダメージ！`,
-      color: "#ffae42"
+      color: "#ffae42",
+      act: "def",
+      run: () => {
+        setPHP(pHit);
+        if (incoming > 0) flash("player");
+      }
     });
     logs.push(def > 0 ? `🛡 防御 ${def} → 敵の攻撃 ${incoming}` : `敵の攻撃 ${incoming} ダメージ`);
-    const p = Math.max(0, pRef.current - incoming);
-    setPHP(p);
+    if (pHit > 0 && heal > 0) {
+      const np = Math.min(P_MAX, pHit + heal);
+      if (np - pHit > 0) {
+        seq.push({
+          text: `${np - pHit} 回復！`,
+          color: "#5bd98a",
+          act: "heal",
+          run: () => {
+            setPHP(np);
+            flash("heal");
+          }
+        });
+        logs.push(`✚ ${np - pHit} 回復`);
+      }
+    }
+    const p = pHit;
     addLog(logs);
     playFx(seq, () => {
       if (p <= 0) {
@@ -831,6 +872,7 @@ function DropBattle() {
         @keyframes dropIn { from { transform: translateY(-46px); opacity:0; } to { transform: translateY(0); opacity:1; } }
         @keyframes markPulse { 0%,100%{ opacity:.78 } 50%{ opacity:1 } }
         @keyframes fxPop { 0%{ transform: scale(.6) translateY(8px); opacity:0 } 25%{ transform: scale(1.1) translateY(0); opacity:1 } 80%{ opacity:1 } 100%{ opacity:0; transform: translateY(-6px) } }
+        @keyframes hitShake { 0%,100%{ transform: translateX(0) } 20%{ transform: translateX(-4px) } 40%{ transform: translateX(4px) } 60%{ transform: translateX(-3px) } 80%{ transform: translateX(3px) } }
         * { -webkit-touch-callout: none; }
       `), /*#__PURE__*/React.createElement("div", {
     className: "w-full",
@@ -872,8 +914,10 @@ function DropBattle() {
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex-1 rounded-xl p-2",
     style: {
-      background: "rgba(65,217,122,.10)",
-      border: "1px solid rgba(65,217,122,.4)"
+      background: hit === "player" ? "rgba(255,70,70,.32)" : hit === "heal" ? "rgba(65,217,122,.32)" : "rgba(65,217,122,.10)",
+      border: hit === "player" ? "1px solid rgba(255,90,90,.9)" : "1px solid rgba(65,217,122,.4)",
+      animation: hit === "player" ? "hitShake .45s ease" : "none",
+      transition: "background .25s ease, border-color .25s ease"
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex justify-between items-center text-xs mb-1"
@@ -898,8 +942,10 @@ function DropBattle() {
   }, incomingPreview))), /*#__PURE__*/React.createElement("div", {
     className: "flex-1 rounded-xl p-2",
     style: {
-      background: "rgba(255,82,82,.10)",
-      border: "1px solid rgba(255,82,82,.4)"
+      background: hit === "enemy" ? "rgba(255,82,82,.45)" : "rgba(255,82,82,.10)",
+      border: hit === "enemy" ? "1px solid rgba(255,130,130,1)" : "1px solid rgba(255,82,82,.4)",
+      animation: hit === "enemy" ? "hitShake .45s ease" : "none",
+      transition: "background .25s ease, border-color .25s ease"
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex justify-between items-center text-xs mb-1"
@@ -978,6 +1024,8 @@ function DropBattle() {
     } else {
       valEl = String(tv[key]);
     }
+    // ターン演出中、いま再生中のステップ（攻撃/防御/回復）に対応するボタンだけ光らせる
+    const lit = fx.length > 0 && fx[fx.length - 1].act === key;
     return /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => {
@@ -987,26 +1035,26 @@ function DropBattle() {
       className: "rounded-xl flex flex-col items-center justify-center",
       style: {
         height: 64,
-        background: isUsed ? "rgba(0,0,0,.5)" : isSel ? a.bg : "rgba(255,255,255,.05)",
-        border: `2px solid ${isUsed ? "rgba(255,255,255,.07)" : isSel ? a.color : "rgba(255,255,255,.14)"}`,
-        boxShadow: isSel ? `0 0 16px -1px ${a.color}, inset 0 0 14px -5px ${a.color}` : "none",
-        opacity: isUsed ? 0.4 : 1,
-        transition: "background .15s ease, border-color .15s ease, box-shadow .15s ease"
+        background: isUsed ? (lit ? a.bg : "rgba(0,0,0,.5)") : isSel ? a.bg : "rgba(255,255,255,.05)",
+        border: `2px solid ${isUsed ? (lit ? a.color : "rgba(255,255,255,.07)") : isSel ? a.color : "rgba(255,255,255,.14)"}`,
+        boxShadow: isSel || lit ? `0 0 16px -1px ${a.color}, inset 0 0 14px -5px ${a.color}` : "none",
+        opacity: isUsed ? (lit ? 1 : 0.4) : 1,
+        transition: "background .25s ease, border-color .25s ease, box-shadow .25s ease, opacity .25s ease"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "1.15rem",
         height: 22,
         lineHeight: "22px",
-        color: isUsed ? "#777" : a.color,
-        filter: isSel ? `drop-shadow(0 0 6px ${a.color})` : "none"
+        color: isUsed ? (lit ? a.color : "#777") : a.color,
+        filter: isSel || lit ? `drop-shadow(0 0 6px ${a.color})` : "none"
       }
     }, a.icon), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 11,
         height: 16,
         lineHeight: "16px",
-        color: isUsed ? "#777" : "#e7e0ef"
+        color: isUsed ? (lit ? "#e7e0ef" : "#777") : "#e7e0ef"
       }
     }, a.label, /*#__PURE__*/React.createElement("span", {
       style: { fontSize: 8, opacity: 0.5, marginLeft: 2 }
