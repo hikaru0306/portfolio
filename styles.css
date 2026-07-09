@@ -863,7 +863,7 @@ a.tl-image { display: block; cursor: pointer; }
 .tl-tag--balance { background: #7a3fb5; }
 .tl-tag--plan    { background: var(--p-red); }
 .tl-tag--data    { background: #0c8a82; }
-.tl-tag--port    { background: var(--p-yellow); color: var(--p-black); }
+.tl-tag--port    { background: #5c6f7d; }
 .tl-tag--ui      { background: #b03a7c; }
 
 .tl-list {
