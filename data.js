@@ -193,8 +193,9 @@ window.PORTFOLIO_DATA = {
       {
         badge: "05",
         title: "無料アップデート 第20弾",
-        tags:  [{ kind: "ai", text: "バトルAI" }, { kind: "plan", text: "企画" }, { kind: "data", text: "KPI" }, { kind: "fix", text: "不具合対応" }],
+        tags:  [{ kind: "ai", text: "バトルAI" }, { kind: "plan", text: "企画" }, { kind: "ui", text: "UI設計" }, { kind: "data", text: "KPI" }, { kind: "fix", text: "不具合対応" }],
         items: [
+          "タイトル画面改修の企画・UI設計",
           "オンラインイベント（宇宙一武道祭）キャラクター専用バトルAI作成（継続）",
           "報酬設計（継続）",
           "KPI関連の資料作成（継続）",
