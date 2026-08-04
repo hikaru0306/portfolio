@@ -221,11 +221,48 @@ window.PORTFOLIO_DATA = {
     sectionTitle: "自主制作",
     items: [
       {
+        title: "ドロプシア",
+        icon: "icon_dropsia.png",
+        tags: [
+          { class: "tag tag--green", text: "アプリ" },
+          { class: "tag tag--role",  text: "個人" },
+          { class: "tag tag--warm",  text: "開発中" },
+          { class: "tag tag--time",           text: "4ヶ月" }
+        ],
+        catch: "隣り合う同色ドロップを消して戦う、パズル × ローグライク",
+        link:  { text: "ブラウザで遊ぶ", href: "https://hikaru0306.github.io/dropbattle-rogue/" },
+        meta: [
+          { heading: "担当", items: [
+            "全部",
+            "以下使用AI",
+            "Claude",
+            "ComfyUI",
+            "Codex"
+          ]},
+          { heading: "見どころ", items: [
+            "キャラクターによって異なる能力",
+            "ビルド構築に応じて変わるパズル",
+            "ランダム性とPSのバランス"
+          ]}
+        ],
+        right: {
+          type: "lead",
+          videoLocal: "ドロプシア.mp4",
+          intent: {
+            title: "制作意図と狙い",
+            items: [
+              "「ただ消すだけ」のパズルに、ローグライクの選択とビルドを重ねて毎回違う攻略が生まれるかを検証"
+            ]
+          }
+        }
+      },
+      {
         title: "もじなん",
         icon: "icon_moji.png",
         tags: [
           { class: "tag tag--green",          text: "アプリ" },
           { class: "tag tag--role tag--team", text: "チーム" },
+          { class: "tag tag--warm",           text: "開発中" },
           { class: "tag tag--time",           text: "11ヶ月" }
         ],
         catch: "映像で出題されるクイズに早押しで答える、直感勝負の対戦クイズゲーム！",
@@ -372,7 +409,7 @@ window.PORTFOLIO_DATA = {
           {
             title: "ドロップバトル",
             overview: "隣り合っている同色ドロップを消して対戦するローグライクゲーム。",
-            aim: "ローグライクに「パズル」要素を追加することで運と戦略要素の幅が広がっているかの検証"
+            aim: "ローグライクに「パズル」要素を追加することで運と戦略要素の幅が広がっているかの検証（→ 手応えがあったため「ドロプシア」として本制作へ）"
           }
         ],
         right: {
