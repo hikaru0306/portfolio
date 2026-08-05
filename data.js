@@ -221,7 +221,7 @@ window.PORTFOLIO_DATA = {
     sectionTitle: "自主制作",
     items: [
       {
-        title: "ドロプシア",
+        title: "ドロップダンジョン",
         icon: "icon_dropsia.png",
         tags: [
           { class: "tag tag--green", text: "アプリ" },
@@ -247,7 +247,7 @@ window.PORTFOLIO_DATA = {
         ],
         right: {
           type: "lead",
-          videoLocal: "ドロプシア.mp4",
+          videoLocal: "ドロップダンジョン.mp4",
           intent: {
             title: "制作意図と狙い",
             items: [
@@ -407,9 +407,9 @@ window.PORTFOLIO_DATA = {
             aim: "「エイム」のみの移動でゲームとして成立するのか、読み合いが発生するのかを検証"
           },
           {
-            title: "ドロップバトル",
+            title: "ドロップダンジョン",
             overview: "隣り合っている同色ドロップを消して対戦するローグライクゲーム。",
-            aim: "ローグライクに「パズル」要素を追加することで運と戦略要素の幅が広がっているかの検証（→ 手応えがあったため「ドロプシア」として本制作へ）"
+            aim: "ローグライクに「パズル」要素を追加することで運と戦略要素の幅が広がっているかの検証（→ 手応えがあったため「ドロップダンジョン」として本制作へ）"
           }
         ],
         right: {
@@ -417,7 +417,7 @@ window.PORTFOLIO_DATA = {
           tabs: [
             { label: "ナンバーマージ",  src: "number_merge_puzzle.html?v=2" },
             { label: "I Can Shot",     src: "i_can_shot_11.html?v=2" },
-            { label: "ドロップバトル", src: "dropbattle.html?v=2" }
+            { label: "ドロップダンジョン", src: "dropbattle.html?v=3" }
           ]
         }
       }
