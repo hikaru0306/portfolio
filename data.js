@@ -227,7 +227,7 @@ window.PORTFOLIO_DATA = {
           { class: "tag tag--green", text: "アプリ" },
           { class: "tag tag--role",  text: "個人" },
           { class: "tag tag--warm",  text: "開発中" },
-          { class: "tag tag--time",           text: "4ヶ月" }
+          { class: "tag tag--time",           text: "3ヶ月" }
         ],
         catch: "隣り合う同色ドロップを消して戦う、パズル × ローグライク",
         link:  { text: "ブラウザで遊ぶ", href: "https://hikaru0306.github.io/dropbattle-rogue/" },
@@ -251,7 +251,9 @@ window.PORTFOLIO_DATA = {
           intent: {
             title: "制作意図と狙い",
             items: [
-              "「ただ消すだけ」のパズルに、ローグライクの選択とビルドを重ねて毎回違う攻略が生まれるかを検証"
+              "AIを使用した個人開発で、どの程度の作業スピードを出せるのかを検証",
+              "手作業で進めるしかない場所の把握と、AIに置き換えられる場所の把握",
+              "パズル要素にローグライクを入れることで遊びの幅が出せて面白いかの検証"
             ]
           }
         }
