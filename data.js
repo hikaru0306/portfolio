@@ -469,8 +469,8 @@ window.PORTFOLIO_DATA = {
         catch: "敵の能力を奪う2Dシューティングゲーム！",
         awards: [
           {
-            title: "ECC EXPO ディンプス賞",
-            short: "ECC EXPO ディンプス賞"
+            title: "ECC EXPO 2019 ディンプス賞",
+            short: "ECC EXPO 2019 ディンプス賞"
           }
         ],
         meta: [
