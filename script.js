@@ -348,12 +348,13 @@ function renderProjectCard(p) {
       <ul>${(m.items || []).map(it => `<li>${esc(it)}</li>`).join("")}</ul>
     </div>`).join("");
 
-  const awardChip = p.award
-    ? `<span class="award-chip" title="${esc(p.award.title || "")}">
-         <img class="award-chip__mark" src="${esc(p.award.image)}" alt="${esc(p.award.title || "受賞マーク")}" loading="lazy" />
-         <span class="award-chip__text">${esc(p.award.short || p.award.title || "")}</span>
-       </span>`
-    : "";
+  // award は単体 / awards は配列。image は任意（マーク画像がない賞はテキストのみ）
+  const awardList = p.awards || (p.award ? [p.award] : []);
+  const awardChip = awardList.map(a => `
+    <span class="award-chip" title="${esc(a.title || "")}">
+      ${a.image ? `<img class="award-chip__mark" src="${esc(a.image)}" alt="${esc(a.title || "受賞マーク")}" loading="lazy" />` : ""}
+      <span class="award-chip__text">${esc(a.short || a.title || "")}</span>
+    </span>`).join("");
 
   const titleBlock = p.icon
     ? `<div class="project__title-row">
