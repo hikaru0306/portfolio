@@ -232,9 +232,6 @@ window.PORTFOLIO_DATA = {
         catch: "隣り合う同色ドロップを消して戦う、パズル × ローグライク",
         link:  { text: "ブラウザで遊ぶ", href: "https://hikaru0306.github.io/dropbattle-rogue/" },
         meta: [
-          { heading: "担当", items: [
-            "全部"
-          ]},
           { heading: "使用AI", items: [
             "Claude",
             "ComfyUI",
