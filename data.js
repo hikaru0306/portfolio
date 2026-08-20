@@ -233,8 +233,9 @@ window.PORTFOLIO_DATA = {
         link:  { text: "ブラウザで遊ぶ", href: "https://hikaru0306.github.io/dropbattle-rogue/" },
         meta: [
           { heading: "担当", items: [
-            "全部",
-            "以下使用AI",
+            "全部"
+          ]},
+          { heading: "使用AI", items: [
             "Claude",
             "ComfyUI",
             "Codex"
